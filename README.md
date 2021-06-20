@@ -26,4 +26,5 @@ deactivate
 ```
 
 ### Links usados para auxílio no desenvolvimento do trabalho
-- Para a interface gráfica foi utilizado como referência esse [conjunto de vídeos](https://www.youtube.com/playlist?list=PLwsAoT89dh3qJ8JcprQ8AuHY8AGasvx4G);
+- [Conjunto de vídeos em br sobre PyQt5](https://www.youtube.com/playlist?list=PLwsAoT89dh3qJ8JcprQ8AuHY8AGasvx4G);
+- [Tutorial de criação de calculadora com PyQr5](https://realpython.com/python-pyqt-gui-calculator/)

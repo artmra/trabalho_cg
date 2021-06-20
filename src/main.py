@@ -5,7 +5,7 @@ from window import MainWindow
 
 def main():
     app = QApplication(sys.argv)
-    mainWindow = MainWindow().loadWindow()
+    mainWindow = MainWindow()
     sys.exit(app.exec_())
 
 

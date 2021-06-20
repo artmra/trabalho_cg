@@ -27,4 +27,6 @@ deactivate
 
 ### Links usados para auxílio no desenvolvimento do trabalho
 - [Conjunto de vídeos em br sobre PyQt5](https://www.youtube.com/playlist?list=PLwsAoT89dh3qJ8JcprQ8AuHY8AGasvx4G);
-- [Tutorial de criação de calculadora com PyQr5](https://realpython.com/python-pyqt-gui-calculator/)
+- [Tutorial de criação de calculadora com PyQt5](https://realpython.com/python-pyqt-gui-calculator/);
+- [Documentação do QyPt5](https://www.riverbankcomputing.com/static/Docs/PyQt5/api/qtwidgets/qwidget.html?highlight=qwidget#signals);
+- [Exemplo de uso do QPainter](https://zetcode.com/gui/pyqt5/painting/);

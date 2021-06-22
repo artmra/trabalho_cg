@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QGridLayout, QVBoxLayo
 from viewport import Viewport
 
 
-class MainWindow(QWidget):
+class Ui(QWidget):
     def __init__(self):
         super().__init__()
         self.setFixedSize(1110, 810)

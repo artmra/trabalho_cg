@@ -1,23 +1,21 @@
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QPainter
+from PyQt5.QtWidgets import QGraphicsView
 from PyQt5.QtCore import Qt
 import random
 
 
-class Viewport(QWidget):
+# Classe que implementa uma viewport para a aplicação
+class Viewport(QGraphicsView):
 
     def __init__(self):
         super().__init__()
         self.setFixedSize(800, 800)
-        self.setAutoFillBackground(True)
-        p = self.palette()
-        p.setColor(self.backgroundRole(), Qt.black)
-        self.setPalette(p)
 
-    # def paintEvent(self, e):
-    #     qp = QPainter()
-    #     qp.begin(self)
-    #     self.drawPoints(qp)
-    #     qp.end()
+    def paintEvent(self, e):
+        qp = QPainter()
+        qp.begin(self)
+        self.drawPoints(qp)
+        qp.end()
 
     def drawPoints(self, qp):
         qp.setPen(Qt.red)

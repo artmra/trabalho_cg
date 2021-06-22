@@ -30,3 +30,8 @@ deactivate
 - [Tutorial de criação de calculadora com PyQt5](https://realpython.com/python-pyqt-gui-calculator/);
 - [Documentação do QyPt5](https://www.riverbankcomputing.com/static/Docs/PyQt5/api/qtwidgets/qwidget.html?highlight=qwidget#signals);
 - [Exemplo de uso do QPainter](https://zetcode.com/gui/pyqt5/painting/);
+- [Doc de QGraphicsScene](https://doc.qt.io/qtforpython-5/PySide2/QtWidgets/QGraphicsScene.html);
+- [Doc de QGraphicsView](https://doc.qt.io/qtforpython-5/PySide2/QtWidgets/QGraphicsView.html);
+- [Exemplo 1 de uso do QGraphicScene](https://www.youtube.com/watch?v=naHtXpCiPuM);
+- [Exemplo 2 de uso do QGraphicScene](https://www.youtube.com/watch?v=IKqkOI_o6_A);
+- [Exemplo 3 de uso do QGraphicScene](https://www.youtube.com/watch?v=RO_x6ueITHQ);

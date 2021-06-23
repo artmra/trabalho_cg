@@ -2,6 +2,7 @@ from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import QGraphicsView
 from PyQt5.QtCore import Qt
 import random
+from world import World
 
 
 # Classe que implementa uma viewport para a aplicação
@@ -9,6 +10,7 @@ class Viewport(QGraphicsView):
 
     def __init__(self):
         super().__init__()
+        self.world = World()
         self.setFixedSize(800, 800)
 
     def paintEvent(self, e):

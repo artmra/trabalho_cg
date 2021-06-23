@@ -1,6 +1,6 @@
 from PyQt5 import QtCore
 from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QGridLayout, QVBoxLayout, QComboBox, QHBoxLayout
+from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QGridLayout, QVBoxLayout, QComboBox, QHBoxLayout, QGroupBox
 from viewport import Viewport
 
 
@@ -8,15 +8,15 @@ class Ui(QWidget):
     def __init__(self):
         super().__init__()
         self.setFixedSize(1110, 810)
-        self.setWindowTitle('T1 - Arthur Moreira R Alves & Bryan Martins Lima')
-        # TODO: colocar icone pra ficar bonito
+        self.setWindowTitle('T1 - Arthur Moreira R Alves & Bryan M Lima')
         self.setWindowIcon(QIcon('images/mainWindowIcon.png'))
         # TODO: colocar pra abrir no centro da tela
         self.createInnerLayout()
-        self.show()
+        self.objMenu = ObjectMenu()
+        self.create_button()
 
     # metodo responsável por criar o layout interno da janela
-    def createInnerLayout(self) -> QWidget:
+    def createInnerLayout(self):
         # adiciona os componentes à janela principal
         funcMenu = createFuncMenu()
         funcMenu.setParent(self)
@@ -24,6 +24,21 @@ class Ui(QWidget):
         viewport = Viewport()
         viewport.setParent(self)
         viewport.move(305, 5)
+
+    def create_button(self):
+        groupBox = QGroupBox('display')
+        new = QPushButton('New')
+        new.clicked.connect(self.on_pushbutton_clicked)
+        grid = QGridLayout()
+        grid.addWidget(new,0,1)
+        groupBox.setLayout(grid)
+        return groupBox
+
+
+    def on_pushbutton_clicked(self):
+        # self.object_menu = ObjectMenu()
+        self.objMenu.show()
+        # self.object_menu.show()
 
 
     # TODO: Criar menu que mostra os objs
@@ -35,6 +50,14 @@ class Ui(QWidget):
     # TODO: implementar funcionalidade de mover esq/dir/cima/baixo
     # TODO: implementar a transformada lá
 
+class ObjectMenu(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setFixedSize(200, 200)
+        layout = QGridLayout()
+        self.label = QLabel("Another window damnit")
+        layout.addWidget(self.label)
+        self.setWindowTitle('Include Object')
 
 # função responsável por criar o menu que contém as funcionalidades da aplicação
 def createFuncMenu() -> QWidget:
@@ -51,6 +74,7 @@ def createFuncMenu() -> QWidget:
     zoomMenu.setParent(funcMenu)
     layout.addWidget(zoomMenu)
     funcMenu.setLayout(layout)
+
     return funcMenu
 
 
@@ -93,6 +117,8 @@ def createObjsMenu() -> QWidget:
     label.setAlignment(QtCore.Qt.AlignCenter)
     layout.addWidget(label, 0, 0, 1, 3)
     layout.addWidget(QComboBox(), 1, 0, 1, 2)
-    layout.addWidget(QPushButton('+'), 1, 3)
+    addObjButton = QPushButton('+')
+    layout.addWidget(addObjButton, 1, 3)
+    addObjButton.clicked.connect(Ui.on_pushbutton_clicked)
     objsMenu.setLayout(layout)
     return objsMenu

@@ -6,6 +6,7 @@ from ui import Ui
 def main():
     app = QApplication(sys.argv)
     mainWindow = Ui()
+    mainWindow.show()
     sys.exit(app.exec_())
 
 

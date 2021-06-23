@@ -1,4 +1,3 @@
-from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import QGraphicsView
 from PyQt5.QtCore import Qt
 import random
@@ -13,11 +12,11 @@ class Viewport(QGraphicsView):
         self.world = World()
         self.setFixedSize(800, 800)
 
-    def paintEvent(self, e):
-        qp = QPainter()
-        qp.begin(self)
-        self.drawPoints(qp)
-        qp.end()
+    # def paintEvent(self, e):
+    #     qp = QPainter()
+    #     qp.begin(self)
+    #     self.drawPoints(qp)
+    #     qp.end()
 
     def drawPoints(self, qp):
         qp.setPen(Qt.red)

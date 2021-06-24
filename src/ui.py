@@ -95,6 +95,10 @@ class Ui(QMainWindow):
         addPolyButton = QPushButton('+ Poligono')
         addPolyButton.clicked.connect(self.clickCreatePolygon)
         layout.addWidget(addPolyButton, 2, 1)
+        # botao pra deletar obj
+        delObjButton = QPushButton('- Objeto')
+        delObjButton.clicked.connect(self.clickDelOjb)
+        layout.addWidget(delObjButton, 1, 0)
         objsMenu.setLayout(layout)
         return objsMenu
 
@@ -110,6 +114,33 @@ class Ui(QMainWindow):
     def clickCreatePolygon(self):
         self.wireframeMenu = CreateWireframeMenu(self.viewport, self.objListView)
         self.wireframeMenu.show()
+
+    def clickDelOjb(self):
+        selectedItem = self.objListView.currentText()
+        # delObj = [obj.name for obj in self.viewport.scene().objs if obj.name == selectedItem]
+        # if delObj:
+        #     self.viewport.deleteObj(delObj)
+        # print(objName)
+        # print(self.world.getObjs())
+        for obj in self.world.getObjs():
+            if obj.name == selectedItem:
+                if obj in self.viewport.scene().objs:
+                    # Remove do combobox
+                    index = self.objListView.currentIndex()
+                    self.objListView.removeItem(index)
+                    self.viewport.scene().removeItem(obj)
+                # self.world.deleteObj(obj)
+                # # print(self.viewport.objs)
+                # print(self.viewport.items())
+                # self.viewport.deleteObj(obj)
+                # print("Iguais")
+            # print(obj.name)
+        # for obj in self.viewport.scene().objs:
+        #     if obj.name == selectedItem:
+                # obj_to_del = self.world.getObj(obj.name)
+                # print(obj_to_del)
+        #     print(obj.name)
+        # if objName:
 
     def clickZoomIn(self):
         self.viewport.zoomIn()

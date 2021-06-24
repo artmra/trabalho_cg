@@ -82,11 +82,12 @@ class Viewport(QGraphicsView):
         scrollBar = self.verticalScrollBar()
         scrollBar.setValue(scrollBar.value() + 20)
 
-    def addObj(self, obj):
+    def addObj(self, obj: object) -> object:
         self.scene().objs.append(obj)
 
     def updateObj(self, obj):
         self.scene().objs.updateObj(obj)
 
     def deleteObj(self, obj):
-        self.scene().objs.deleteObj(obj)
+        self.scene().objs.remove(obj)
+        # self.scene().objs.deleteObj(obj)

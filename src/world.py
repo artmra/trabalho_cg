@@ -15,25 +15,32 @@ class World(QGraphicsScene):
         self.addRect(self.sceneRect(), QPen(Qt.NoPen), QBrush(Qt.black))
         # Lista de objs 2D do mundo
         self.objs = list()
+        # Dic que relaciona objs 2D à suas instancias equivalentes(lista de linhas q compoe o obj) como QGraphicsItens
+        self.qGraphicsObjs = dict()
 
-    def getObjs(self):
+    def getObjs(self) -> list:
+        # retorna todos os objs
         return self.objs
 
-    def getObj(self, objToGet) -> TwoDObj:
+    def getObj(self, name: str) -> TwoDObj:
+        # retorna um obj de attr name equivalente
         try:
-            return [obj for obj in self.objs if obj == objToGet][0]
+            return [obj for obj in self.objs if obj.name == name][0]
         except Exception:
             raise Exception('Não há nenhum objeto com esse nome.')
 
-    def updateObj(self, updatedObj):
+    def updateObj(self, updatedObj: TwoDObj):
         # como o método de __eq__ dos objetos considera objetos com o mesmo nome iguais é possível atualizar o obj dessa
         # maneira
         self.objs = [updatedObj if updatedObj == obj else obj for obj in self.objs]
 
-    def deleteObj(self, objToDelete):
+    def deleteObj(self, objToDelete: TwoDObj):
         # como o método de __eq__ dos objetos considera objetos com o mesmo nome iguais é possível deletar
         # um abj dessa maneira
         self.objs = [obj for obj in self.objs if obj != objToDelete]
+        listOfLines = self.qGraphicsObjs.pop(objToDelete)
+        for qGraphicsItem in listOfLines:
+            self.removeItem(qGraphicsItem)
 
     def getWorlCoords(self) -> (float, float, float, float):
         # coords = self.sceneRect().getCoords()

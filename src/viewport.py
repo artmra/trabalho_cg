@@ -1,10 +1,8 @@
-from PyQt5.QtGui import QPen, QPainter
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsItem
+from PyQt5.QtGui import QPen
+from PyQt5.QtWidgets import QGraphicsView, QMessageBox
 from PyQt5.QtCore import Qt, QLineF
-import random
 
-from src.objs import Line, Point, Wireframe
-from world import World
+from src.objs import Line, Point, Wireframe, TwoDObj
 
 
 # Classe que implementa uma viewport para a aplicação
@@ -13,14 +11,10 @@ class Viewport(QGraphicsView):
     def __init__(self, world):
         super().__init__()
         self.setFixedSize(800, 800)
-        self.pen = QPen(Qt.red, 3, Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin)
+        self.dotPen = QPen(Qt.red, 9, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin)
+        self.linePen = QPen(Qt.green, 6, Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin)
+        self.wirePen = QPen(Qt.blue, 3, Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin)
         self.setScene(world)
-        # xv1, yv1 = self.viewportTransform(0, 400)
-        # xv2, yv2 = self.viewportTransform(0, -400)
-        # xh1, yh1 = self.viewportTransform(400, 0)
-        # xh2, yh2 = self.viewportTransform(-400, 0)
-        # self.scene().addLine(QLineF(xv1, yv1, xv2, yv2), QPen(Qt.gray, 5, Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin))
-        # self.scene().addLine(QLineF(xh1, yh1, xh2, yh2), QPen(Qt.gray, 5, Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin))
 
     def getViewportCoords(self) -> (float, float, float, float):
         # coords = self.visibleRegion().boundingRect().getCoords()
@@ -35,30 +29,33 @@ class Viewport(QGraphicsView):
         xvpmin, yvpmin, xvpmax, yvpmax = self.getViewportCoords()
         return ((float(xw) - xwmin)/(xwmax - xwmin))*(xvpmax - xvpmin), (1 - ((float(yw) - ywmin)/(ywmax - ywmin)))*(yvpmax - yvpmin)
 
+    def drawPoint(self, point: Point):
+        x, y = self.viewportTransform(point.getX(), point.getY())
+        obj = self.scene().addLine(QLineF(x, y, x+1, y+1), self.dotPen)
+        self.scene().qGraphicsObjs[point] = [obj]
+
     def drawLine(self, line: Line):
         x1, y1 = line.getX1_Y1()
         x1, y1 = self.viewportTransform(x1, y1)
         x2, y2 = line.getX2_Y2()
         x2, y2 = self.viewportTransform(x2, y2)
-        self.scene().addLine(QLineF(x1, y1, x2, y2), self.pen)
-
-    def drawPoint(self, point: Point):
-        x, y = self.viewportTransform(point.getX(), point.getY())
-        self.scene().addLine(QLineF(x, y, x, y+1), self.pen)
+        obj = self.scene().addLine(QLineF(x1, y1, x2, y2), self.linePen)
+        self.scene().qGraphicsObjs[line] = [obj]
 
     def drawWireframe(self, wireframe: Wireframe):
         x1, y1 = wireframe.coords[0]
         x1, y1 = self.viewportTransform(x1, y1)
         x0, y0 = x1, y1
+        points = []
         for i in range(1, len(wireframe.coords)):
             x2, y2 = wireframe.coords[i]
             x2, y2 = self.viewportTransform(x2, y2)
-            self.scene().addLine(QLineF(x1, y1, x2, y2), self.pen)
+            obj = self.scene().addLine(QLineF(x1, y1, x2, y2), self.wirePen)
+            points.append(obj)
             x1, y1 = x2, y2
-        self.scene().addLine(QLineF(x1, y1, x0, y0), self.pen)
-
-
-
+        obj = self.scene().addLine(QLineF(x1, y1, x0, y0), self.wirePen)
+        points.append(obj)
+        self.scene().qGraphicsObjs[wireframe] = points
 
     def zoomIn(self):
         self.scale(1.2, 1.2)
@@ -82,12 +79,18 @@ class Viewport(QGraphicsView):
         scrollBar = self.verticalScrollBar()
         scrollBar.setValue(scrollBar.value() + 20)
 
-    def addObj(self, obj: object) -> object:
+    def addObj(self, obj: TwoDObj):
         self.scene().objs.append(obj)
 
-    def updateObj(self, obj):
+    def updateObj(self, obj: TwoDObj):
         self.scene().objs.updateObj(obj)
 
-    def deleteObj(self, obj):
-        self.scene().objs.remove(obj)
-        # self.scene().objs.deleteObj(obj)
+    def deleteObj(self, objName: str):
+        try:
+            obj = self.scene().getObj(objName)
+            self.scene().deleteObj(obj)
+        except:
+            msg = QMessageBox()
+            msg.setWindowTitle('Não há o que excluir')
+            msg.setText(str('A liste de objetos ja sta vazia.'))
+            x = msg.exec_()

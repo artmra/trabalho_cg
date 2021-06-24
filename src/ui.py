@@ -1,4 +1,4 @@
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QComboBox, QGroupBox, QMainWindow
 
 from src.createMenus import CreatePointMenu, CreateLineMenu, CreateWireframeMenu
@@ -11,7 +11,7 @@ class Ui(QMainWindow):
         super().__init__()
         self.setFixedSize(1110, 810)
         self.setWindowTitle('T1 - Arthur Moreira R Alves & Bryan M Lima')
-        self.setWindowIcon(QIcon('images/mainWindowIcon.png'))
+        self.setWindowIcon(QIcon('images/uiIcon.png'))
         # world
         self.world = World()
         # viewport
@@ -38,7 +38,6 @@ class Ui(QMainWindow):
         zoomMenu.setParent(funcMenu)
         layout.addWidget(zoomMenu)
         funcMenu.setLayout(layout)
-
         return funcMenu
 
     # função responsável por criar o menu que contém as funcionalidades de movimentação no viewport
@@ -46,16 +45,24 @@ class Ui(QMainWindow):
         movMenu = QGroupBox('Movimentação')
         movMenu.setFixedSize(250, 200)
         layout = QGridLayout()
-        upButton = QPushButton('Up')
+        upButton = QPushButton()
+        upButton.setStyleSheet('border: none')
+        upButton.setIcon(QIcon(QPixmap('images/up.svg')))
         upButton.clicked.connect(self.clickMoveUp)
         layout.addWidget(upButton, 1, 1)
-        leftButton = QPushButton('Left')
+        leftButton = QPushButton()
+        leftButton.setStyleSheet('border: none')
+        leftButton.setIcon(QIcon(QPixmap('images/left.svg')))
         leftButton.clicked.connect(self.clickMoveLeft)
         layout.addWidget(leftButton, 2, 0)
-        rightButton = QPushButton('Right')
+        rightButton = QPushButton()
+        rightButton.setStyleSheet('border: none')
+        rightButton.setIcon(QIcon(QPixmap('images/right.svg')))
         rightButton.clicked.connect(self.clickMoveRight)
         layout.addWidget(rightButton, 2, 2)
-        downButton = QPushButton('Down')
+        downButton = QPushButton()
+        downButton.setStyleSheet('border: none')
+        downButton.setIcon(QIcon(QPixmap('images/down.svg')))
         downButton.clicked.connect(self.clickMoveDown)
         layout.addWidget(downButton, 3, 1)
         movMenu.setLayout(layout)
@@ -66,10 +73,14 @@ class Ui(QMainWindow):
         zoomMenu = QGroupBox('Zoom')
         zoomMenu.setFixedSize(250, 200)
         layout = QGridLayout()
-        zoomInButton = QPushButton('in')
+        zoomInButton = QPushButton()
+        zoomInButton.setStyleSheet('border: none')
+        zoomInButton.setIcon(QIcon(QPixmap('images/zoomin.svg')))
         zoomInButton.clicked.connect(self.clickZoomIn)
         layout.addWidget(zoomInButton, 1, 0)
-        zoomOutButton = QPushButton('out')
+        zoomOutButton = QPushButton()
+        zoomOutButton.setStyleSheet('border: none')
+        zoomOutButton.setIcon(QIcon(QPixmap('images/zoomout.svg')))
         zoomOutButton.clicked.connect(self.clickZoomOut)
         layout.addWidget(zoomOutButton, 1, 1)
         zoomMenu.setLayout(layout)
@@ -81,22 +92,31 @@ class Ui(QMainWindow):
         objsMenu.setFixedSize(250, 200)
         layout = QGridLayout()
         self.objListView = QComboBox()
+        self.objListView.setStyleSheet('border: none')
         layout.addWidget(self.objListView, 0, 0)
         # botao adicionar ponto
-        addPointButton = QPushButton('+ Ponto')
+        addPointButton = QPushButton('Ponto')
+        addPointButton.setStyleSheet('border: none')
+        addPointButton.setIcon(QIcon(QPixmap('images/draw.svg')))
         # associa o metodo ao clique do botao
         addPointButton.clicked.connect(self.clickCreatePoint)
         layout.addWidget(addPointButton, 0, 1)
         # botao adicionar reta
-        addLineButton = QPushButton('+ Linha')
+        addLineButton = QPushButton('Linha')
+        addLineButton.setStyleSheet('border: none')
+        addLineButton.setIcon(QIcon(QPixmap('images/draw.svg')))
         addLineButton.clicked.connect(self.clickCreateLine)
         layout.addWidget(addLineButton, 1, 1)
         # botao adicionar poligono
-        addPolyButton = QPushButton('+ Poligono')
+        addPolyButton = QPushButton('Poligono')
+        addPolyButton.setStyleSheet('border: none')
+        addPolyButton.setIcon(QIcon(QPixmap('images/draw.svg')))
         addPolyButton.clicked.connect(self.clickCreatePolygon)
         layout.addWidget(addPolyButton, 2, 1)
         # botao pra deletar obj
-        delObjButton = QPushButton('- Objeto')
+        delObjButton = QPushButton('')
+        delObjButton.setStyleSheet('border: none')
+        delObjButton.setIcon(QIcon(QPixmap('images/delete.svg')))
         delObjButton.clicked.connect(self.clickDelOjb)
         layout.addWidget(delObjButton, 1, 0)
         objsMenu.setLayout(layout)
@@ -116,31 +136,10 @@ class Ui(QMainWindow):
         self.wireframeMenu.show()
 
     def clickDelOjb(self):
-        selectedItem = self.objListView.currentText()
-        # delObj = [obj.name for obj in self.viewport.scene().objs if obj.name == selectedItem]
-        # if delObj:
-        #     self.viewport.deleteObj(delObj)
-        # print(objName)
-        # print(self.world.getObjs())
-        for obj in self.world.getObjs():
-            if obj.name == selectedItem:
-                if obj in self.viewport.scene().objs:
-                    # Remove do combobox
-                    index = self.objListView.currentIndex()
-                    self.objListView.removeItem(index)
-                    self.viewport.scene().removeItem(obj)
-                # self.world.deleteObj(obj)
-                # # print(self.viewport.objs)
-                # print(self.viewport.items())
-                # self.viewport.deleteObj(obj)
-                # print("Iguais")
-            # print(obj.name)
-        # for obj in self.viewport.scene().objs:
-        #     if obj.name == selectedItem:
-                # obj_to_del = self.world.getObj(obj.name)
-                # print(obj_to_del)
-        #     print(obj.name)
-        # if objName:
+        selectedItemName = self.objListView.currentText()
+        self.viewport.deleteObj(selectedItemName)
+        index = self.objListView.currentIndex()
+        self.objListView.removeItem(index)
 
     def clickZoomIn(self):
         self.viewport.zoomIn()

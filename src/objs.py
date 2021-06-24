@@ -22,6 +22,10 @@ class TwoDObj:
         return other.name == self.name \
                or (isinstance(other, TwoDObj) and other.twoDType == self.twoDType and other.coords == self.coords)
 
+    def __hash__(self):
+        # implementada para permitir usar objs 2d como keys em dicts
+        return hash((self.name, self.twoDType.value))
+
     def getName(self) -> str:
         return self.name
 

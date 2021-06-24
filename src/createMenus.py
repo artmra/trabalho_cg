@@ -1,12 +1,10 @@
+from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QComboBox
-
 from src.objs import Point, Line, Wireframe
-
-
-# classe base com elementos comuns a todas as classes de criacao de obj
 from src.viewport import Viewport
 
 
+# classe base com elementos comuns a todas as classes de criacao de obj
 class CreateMenu(QWidget):
     def __init__(self, name, viewport: Viewport, objListView: QComboBox):
         super().__init__()
@@ -14,7 +12,9 @@ class CreateMenu(QWidget):
         self.viewport = viewport
         self.objListView = objListView
         self.createButton = QPushButton('Criar')
+        self.createButton.setStyleSheet('border: none')
         self.cancelButton = QPushButton('Cancelar')
+        self.cancelButton.setStyleSheet('border: none')
         self.cancelButton.clicked.connect(self.close)
 
 # janela de criacao de pontos
@@ -52,6 +52,7 @@ class CreatePointMenu(CreateMenu):
         except Exception as e:
             msg = QMessageBox()
             msg.setWindowTitle('Erro no processo de criação')
+            msg.setWindowIcon(QIcon('images/warning.svg'))
             msg.setText(str(e))
             x = msg.exec_()
 
@@ -107,7 +108,9 @@ class CreateWireframeMenu(CreateMenu):
     def __init__(self, viewport: Viewport, objListView: QComboBox, inputCoords=None):
         super().__init__('Criação de Linha', viewport, objListView)
         self.createButton.clicked.connect(self.clickCreate)
-        self.addCoordButton = QPushButton('+')
+        self.addCoordButton = QPushButton()
+        self.addCoordButton.setStyleSheet('border: none')
+        self.addCoordButton.setIcon(QIcon(QPixmap('images/addCoord.svg')))
         self.inputCoords = [(QLineEdit(), QLineEdit()), (QLineEdit(), QLineEdit()), (QLineEdit(), QLineEdit())] if inputCoords is None else inputCoords
         self.loadLayout()
         self.addCoordButton.clicked.connect(self.updateLayout)

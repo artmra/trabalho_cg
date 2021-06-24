@@ -7,10 +7,13 @@ from world import World
 # Classe que implementa uma viewport para a aplicação
 class Viewport(QGraphicsView):
 
-    def __init__(self):
+    def __init__(self, world):
         super().__init__()
-        self.world = World()
         self.setFixedSize(800, 800)
+        self.setScene(world)
+
+    def createObj(self, obj):
+        self.scene().objs.append(obj)
 
     # def paintEvent(self, e):
     #     qp = QPainter()

@@ -2,6 +2,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QComboBox, QGroupBox, QMainWindow
 
 from src.createMenus import CreatePointMenu, CreateLineMenu, CreatePolygonMenu
+from src.world import World
 from viewport import Viewport
 
 
@@ -11,8 +12,10 @@ class Ui(QMainWindow):
         self.setFixedSize(1110, 810)
         self.setWindowTitle('T1 - Arthur Moreira R Alves & Bryan M Lima')
         self.setWindowIcon(QIcon('images/mainWindowIcon.png'))
+        # world
+        self.world = World()
         # viewport
-        self.viewport = Viewport()
+        self.viewport = Viewport(self.world)
         self.viewport.setParent(self)
         self.viewport.move(305, 5)
         # menu com as funcionalidades da aplicação

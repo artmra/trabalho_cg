@@ -10,47 +10,68 @@ class TwoDObjType(Enum):
 
 # Esquema padrão de todos os objs 2D
 class TwoDObj:
-    def __init__(self, name, type):
-        self.name = name
-        self.type = TwoDObjType(type)
+    def __init__(self, name, twoDType):
+        self.name = str(name)
+        self.twoDType = TwoDObjType(twoDType)
         self.coords = list()
 
-    def getName(self) -> str: return self.name
+    def __eq__(self, other):
+        # no contexto desse trabalho todos os objetos devem ter nomes diferentes, e caso sejam de tipos iguais n podem
+        # ter coordenadas iguais. O teste deixa passar objetos iguais com coordenadas invertidas, algo que
+        # será corrigido
+        return other.name == self.name \
+               or (isinstance(other, TwoDObj) and other.twoDType == self.twoDType and other.coords == self.coords)
 
-    def getType(self) -> TwoDObjType: return self.type
+    def getName(self) -> str:
+        return self.name
 
-    def getCoords(self) -> list: return self.coords
+    def getType(self) -> TwoDObjType:
+        return self.type
+
+    def getCoords(self) -> list:
+        return self.coords
 
 
 # Classe que representa um ponto
 class Point(TwoDObj):
     def __init__(self, name, x_y=(0, 0)):
         super().__init__(name, 0)
-        # TODO: checar se as tuplas são compostas de números?
-        if x_y is not tuple or len(x_y) != 2:
+        if not isinstance(x_y, tuple) or len(x_y) != 2:
             raise Exception('O param x_y deve ser uma tupla de 2 valores.')
+        try:
+            x_y = (float(x_y[0]), float(x_y[1]))
+        except Exception:
+            raise Exception('As coordenadas devem ser pares de números.')
         self.coords.append(x_y)
         self.x = x_y[0]
         self.y = x_y[1]
 
-    def getX(self): return self.x
+    def getX(self) -> float:
+        return self.x
 
-    def getY(self): return self.y
+    def getY(self) -> float:
+        return self.y
 
 
 # Classe que representa uma linha
 class Line(TwoDObj):
     def __init__(self, name, coords=[(0, 0), (1, 1)]):
         super().__init__(name, 1)
-        # TODO: checar se as tuplas são compostas de números?
-        for x_y in coords:
-            if x_y is not tuple or len(x_y) != 2:
-                raise Exception('A lista de coordenadas deve conter apenas tuplas de dois valores.')
-        self.coords.extend(coords)
         try:
-            self.x1_y1, self.x2_y2 = coords
+            x1_y1, x2_y2 = coords
         except:
             raise Exception('Devem haver apenas 2 tuplas: a 1ª será (x1, y1) e a 2ª (x2, y2).')
+
+        for x_y in coords:
+            if not isinstance(x_y, tuple) or len(x_y) != 2:
+                raise Exception('A lista de coordenadas deve conter apenas tuplas de dois valores.')
+            try:
+                x_y = (float(x_y[0]), float(x_y[1]))
+                self.coords.append(x_y)
+            except Exception:
+                raise Exception('As coordenadas devem ser pares de números.')
+        self.x1_y1 = (x1_y1[0], x1_y1[1])
+        self.x2_y2 = (x2_y2[0], x2_y2[1])
 
     def getX1_Y1(self) -> tuple:
         return self.x1_y1
@@ -63,8 +84,11 @@ class Line(TwoDObj):
 class Polygon(TwoDObj):
     def __init__(self, name, coords=[(0, 0), (1, 1), (0, 2)]):
         super().__init__(name, 2)
-        # TODO: checar se as tuplas são compostas de números?
         for x_y in coords:
-            if x_y is not tuple or len(x_y) != 2:
+            if not isinstance(x_y, tuple) or len(x_y) != 2:
                 raise Exception('A lista de coordenadas deve conter apenas tuplas de dois valores.')
-        self.coords.extend(coords)
+            try:
+                x_y = (float(x_y[0]), float(x_y[1]))
+                self.coords.append(x_y)
+            except Exception:
+                raise Exception('As coordenadas devem ser pares de números.')

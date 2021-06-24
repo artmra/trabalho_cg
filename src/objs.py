@@ -81,7 +81,7 @@ class Line(TwoDObj):
 
 
 # Classe que representa um polígono
-class Polygon(TwoDObj):
+class Wireframe(TwoDObj):
     def __init__(self, name, coords=[(0, 0), (1, 1), (0, 2)]):
         super().__init__(name, 2)
         for x_y in coords:

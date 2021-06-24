@@ -15,12 +15,6 @@ class Viewport(QGraphicsView):
     def createObj(self, obj):
         self.scene().objs.append(obj)
 
-    # def paintEvent(self, e):
-    #     qp = QPainter()
-    #     qp.begin(self)
-    #     self.drawPoints(qp)
-    #     qp.end()
-
     def drawPoints(self, qp):
         qp.setPen(Qt.red)
         size = self.size()

@@ -8,6 +8,13 @@ class World(QGraphicsScene):
         # Lista de objs 2D do mundo
         self.objs = list()
 
-    def getObjs(self): return self.objs
+    def getObjs(self):
+        return self.objs
+
+    def getObj(self, name):
+        try:
+            return [obj for obj in self.objs if obj.name == name][0]
+        except Exception:
+            raise Exception('Não há nenhum objeto com esse nome.')
 
 

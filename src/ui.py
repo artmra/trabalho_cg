@@ -1,7 +1,7 @@
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QComboBox, QGroupBox, QMainWindow
 
-from src.createMenus import CreatePointMenu, CreateLineMenu, CreatePolygonMenu
+from src.createMenus import CreatePointMenu, CreateLineMenu, CreateWireframeMenu
 from src.world import World
 from viewport import Viewport
 
@@ -68,7 +68,8 @@ class Ui(QMainWindow):
         objsMenu = QGroupBox('Objetos')
         objsMenu.setFixedSize(250, 200)
         layout = QGridLayout()
-        layout.addWidget(QComboBox(), 0, 0)
+        self.objListView = QComboBox()
+        layout.addWidget(self.objListView, 0, 0)
         # botao adicionar ponto
         addPointButton = QPushButton('+ Ponto')
         # associa o metodo ao clique do botao
@@ -87,16 +88,16 @@ class Ui(QMainWindow):
 
     # MÉTODOS DA APLICAÇÃO
     def clickCreatePoint(self):
-        self.createPoinMenu = CreatePointMenu(self.viewport)
-        self.createPoinMenu.show()
+        self.poinMenu = CreatePointMenu(self.viewport, self.objListView)
+        self.poinMenu.show()
 
     def clickCreateLine(self):
-        self.createLineMenu = CreateLineMenu(self.viewport)
-        self.createLineMenu.show()
+        self.lineMenu = CreateLineMenu(self.viewport, self.objListView)
+        self.lineMenu.show()
 
     def clickCreatePolygon(self):
-        self.createPolygonMenu = CreatePolygonMenu(self.viewport)
-        self.createPolygonMenu.show()
+        self.wireframeMenu = CreateWireframeMenu(self.viewport, self.objListView)
+        self.wireframeMenu.show()
 
     # TODO: Criar menu que mostra os objs
     # TODO: Criar menu que cria objs

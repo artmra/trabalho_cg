@@ -1,21 +1,23 @@
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QMessageBox
 
-from src.objs import Point, Line
+from src.objs import Point, Line, Wireframe
 
 
+# classe base com elementos comuns a todas as classes de criacao de obj
 class CreateMenu(QWidget):
-    def __init__(self, name, viewport):
+    def __init__(self, name, viewport, objListView):
         super().__init__()
         self.setWindowTitle(name)
         self.viewport = viewport
+        self.objListView = objListView
         self.createButton = QPushButton('Criar')
         self.cancelButton = QPushButton('Cancelar')
         self.cancelButton.clicked.connect(self.close)
 
-
+# janela de criacao de pontos
 class CreatePointMenu(CreateMenu):
-    def __init__(self, viewport):
-        super().__init__('Criação de Ponto', viewport)
+    def __init__(self, viewport, objListView):
+        super().__init__('Criação de Ponto', viewport, objListView)
         self.createButton.clicked.connect(self.clickCreate)
         layout = QGridLayout()
         self.x = QLineEdit()
@@ -41,6 +43,7 @@ class CreatePointMenu(CreateMenu):
                 x = msg.exec_()
             else:
                 self.viewport.createObj(obj)
+                self.objListView.addItem(obj.name)
                 self.close()
         except Exception as e:
             msg = QMessageBox()
@@ -49,9 +52,10 @@ class CreatePointMenu(CreateMenu):
             x = msg.exec_()
 
 
+# janela de criacao de pontos
 class CreateLineMenu(CreateMenu):
-    def __init__(self, viewport):
-        super().__init__('Criação de Linha', viewport)
+    def __init__(self, viewport, objListView):
+        super().__init__('Criação de Linha', viewport, objListView)
         # self.setFixedSize(200, 200)
         self.createButton.clicked.connect(self.clickCreate)
         layout = QGridLayout()
@@ -84,6 +88,7 @@ class CreateLineMenu(CreateMenu):
                 x = msg.exec_()
             else:
                 self.viewport.createObj(obj)
+                self.objListView.addItem(obj.name)
                 self.close()
         except Exception as e:
             msg = QMessageBox()
@@ -92,10 +97,56 @@ class CreateLineMenu(CreateMenu):
             x = msg.exec_()
 
 
-class CreatePolygonMenu(CreateMenu):
-    def __init__(self, viewport):
-        super().__init__('Criação de Poligono', viewport)
+# janela de criacao de poligonos
+class CreateWireframeMenu(CreateMenu):
+    def __init__(self, viewport, objListView, inputCoords=None):
+        super().__init__('Criação de Linha', viewport, objListView)
+        self.createButton.clicked.connect(self.clickCreate)
+        self.addCoordButton = QPushButton('+')
+        self.inputCoords = [(QLineEdit(), QLineEdit()), (QLineEdit(), QLineEdit()), (QLineEdit(), QLineEdit())] if inputCoords is None else inputCoords
+        self.loadLayout()
+        self.addCoordButton.clicked.connect(self.updateLayout)
+
+    def clickCreate(self):
+        try:
+            coords = [(xyin[0].text(), xyin[1].text()) for xyin in self.inputCoords]
+            obj = Wireframe(self.name.text(), coords)
+            if obj in self.viewport.scene().objs:
+                msg = QMessageBox()
+                msg.setWindowTitle('Erro no processo de criação')
+                msg.setText('Não é possível criar objetos com o mesmo nome ou informações parecidas.')
+                x = msg.exec_()
+            else:
+                self.viewport.createObj(obj)
+                self.objListView.addItem(obj.name)
+                self.close()
+        except Exception as e:
+            msg = QMessageBox()
+            msg.setWindowTitle('Erro no processo de criação')
+            msg.setText(str(e))
+            x = msg.exec_()
+
+    def updateLayout(self):
+        self.close()
+        self.inputCoords.append((QLineEdit(), QLineEdit()))
+        self.wireframeMenu = CreateWireframeMenu(self.viewport, self.objListView, self.inputCoords)
+        self.wireframeMenu.show()
+
+    def loadLayout(self):
         layout = QGridLayout()
-        self.label = QLabel("Another window damnit")
-        layout.addWidget(self.label)
+        self.name = QLineEdit()
+        layout.addWidget(QLabel('Nome:'), 0, 0, 1, 2)
+        layout.addWidget(self.name, 0, 3, 1, 2)
+        for n in range(0, len(self.inputCoords)):
+            xyInput = self.inputCoords[n]
+            xInput = xyInput[0]
+            yInput = xyInput[1]
+            n_ = n + 1
+            layout.addWidget(QLabel(f'X{n_}:'), n_, 0)
+            layout.addWidget(xInput, n_, 1)
+            layout.addWidget(QLabel(f'Y{n_}:'), n_, 2)
+            layout.addWidget(yInput, n_, 3)
+        layout.addWidget(self.addCoordButton, len(self.inputCoords) + 1, 0, 1, 4)
+        layout.addWidget(self.createButton, len(self.inputCoords) + 2, 0, 1, 2)
+        layout.addWidget(self.cancelButton, len(self.inputCoords) + 2, 3, 1, 2)
         self.setLayout(layout)

@@ -1,11 +1,14 @@
-from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QMessageBox
+from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QComboBox
 
 from src.objs import Point, Line, Wireframe
 
 
 # classe base com elementos comuns a todas as classes de criacao de obj
+from src.viewport import Viewport
+
+
 class CreateMenu(QWidget):
-    def __init__(self, name, viewport, objListView):
+    def __init__(self, name, viewport: Viewport, objListView: QComboBox):
         super().__init__()
         self.setWindowTitle(name)
         self.viewport = viewport
@@ -16,7 +19,7 @@ class CreateMenu(QWidget):
 
 # janela de criacao de pontos
 class CreatePointMenu(CreateMenu):
-    def __init__(self, viewport, objListView):
+    def __init__(self, viewport: Viewport, objListView: QComboBox):
         super().__init__('Criação de Ponto', viewport, objListView)
         self.createButton.clicked.connect(self.clickCreate)
         layout = QGridLayout()
@@ -42,8 +45,9 @@ class CreatePointMenu(CreateMenu):
                 msg.setText('Não é possível criar objetos com o mesmo nome ou informações parecidas.')
                 x = msg.exec_()
             else:
-                self.viewport.createObj(obj)
+                self.viewport.addObj(obj)
                 self.objListView.addItem(obj.name)
+                self.viewport.drawPoint(obj)
                 self.close()
         except Exception as e:
             msg = QMessageBox()
@@ -54,7 +58,7 @@ class CreatePointMenu(CreateMenu):
 
 # janela de criacao de pontos
 class CreateLineMenu(CreateMenu):
-    def __init__(self, viewport, objListView):
+    def __init__(self, viewport: Viewport, objListView: QComboBox):
         super().__init__('Criação de Linha', viewport, objListView)
         # self.setFixedSize(200, 200)
         self.createButton.clicked.connect(self.clickCreate)
@@ -87,8 +91,9 @@ class CreateLineMenu(CreateMenu):
                 msg.setText('Não é possível criar objetos com o mesmo nome ou informações parecidas.')
                 x = msg.exec_()
             else:
-                self.viewport.createObj(obj)
+                self.viewport.addObj(obj)
                 self.objListView.addItem(obj.name)
+                self.viewport.drawLine(obj)
                 self.close()
         except Exception as e:
             msg = QMessageBox()
@@ -99,7 +104,7 @@ class CreateLineMenu(CreateMenu):
 
 # janela de criacao de poligonos
 class CreateWireframeMenu(CreateMenu):
-    def __init__(self, viewport, objListView, inputCoords=None):
+    def __init__(self, viewport: Viewport, objListView: QComboBox, inputCoords=None):
         super().__init__('Criação de Linha', viewport, objListView)
         self.createButton.clicked.connect(self.clickCreate)
         self.addCoordButton = QPushButton('+')
@@ -117,8 +122,9 @@ class CreateWireframeMenu(CreateMenu):
                 msg.setText('Não é possível criar objetos com o mesmo nome ou informações parecidas.')
                 x = msg.exec_()
             else:
-                self.viewport.createObj(obj)
+                self.viewport.addObj(obj)
                 self.objListView.addItem(obj.name)
+                self.viewport.drawWireframe(obj)
                 self.close()
         except Exception as e:
             msg = QMessageBox()

@@ -43,8 +43,8 @@ class Point(TwoDObj):
         except Exception:
             raise Exception('As coordenadas devem ser pares de números.')
         self.coords.append(x_y)
-        self.x = x_y[0]
-        self.y = x_y[1]
+        self.x = float(x_y[0])
+        self.y = float(x_y[1])
 
     def getX(self) -> float:
         return self.x
@@ -70,8 +70,8 @@ class Line(TwoDObj):
                 self.coords.append(x_y)
             except Exception:
                 raise Exception('As coordenadas devem ser pares de números.')
-        self.x1_y1 = (x1_y1[0], x1_y1[1])
-        self.x2_y2 = (x2_y2[0], x2_y2[1])
+        self.x1_y1 = (float(x1_y1[0]), float(x1_y1[1]))
+        self.x2_y2 = (float(x2_y2[0]), float(x2_y2[1]))
 
     def getX1_Y1(self) -> tuple:
         return self.x1_y1

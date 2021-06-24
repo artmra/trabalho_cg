@@ -46,10 +46,18 @@ class Ui(QMainWindow):
         movMenu = QGroupBox('Movimentação')
         movMenu.setFixedSize(250, 200)
         layout = QGridLayout()
-        layout.addWidget(QPushButton('Up'), 1, 1)
-        layout.addWidget(QPushButton('Left'), 2, 0)
-        layout.addWidget(QPushButton('Right'), 2, 2)
-        layout.addWidget(QPushButton('Down'), 3, 1)
+        upButton = QPushButton('Up')
+        upButton.clicked.connect(self.clickMoveUp)
+        layout.addWidget(upButton, 1, 1)
+        leftButton = QPushButton('Left')
+        leftButton.clicked.connect(self.clickMoveLeft)
+        layout.addWidget(leftButton, 2, 0)
+        rightButton = QPushButton('Right')
+        rightButton.clicked.connect(self.clickMoveRight)
+        layout.addWidget(rightButton, 2, 2)
+        downButton = QPushButton('Down')
+        downButton.clicked.connect(self.clickMoveDown)
+        layout.addWidget(downButton, 3, 1)
         movMenu.setLayout(layout)
         return movMenu
 
@@ -58,8 +66,12 @@ class Ui(QMainWindow):
         zoomMenu = QGroupBox('Zoom')
         zoomMenu.setFixedSize(250, 200)
         layout = QGridLayout()
-        layout.addWidget(QPushButton('in'), 1, 0)
-        layout.addWidget(QPushButton('out'), 1, 1)
+        zoomInButton = QPushButton('in')
+        zoomInButton.clicked.connect(self.clickZoomIn)
+        layout.addWidget(zoomInButton, 1, 0)
+        zoomOutButton = QPushButton('out')
+        zoomOutButton.clicked.connect(self.clickZoomOut)
+        layout.addWidget(zoomOutButton, 1, 1)
         zoomMenu.setLayout(layout)
         return zoomMenu
 
@@ -86,7 +98,7 @@ class Ui(QMainWindow):
         objsMenu.setLayout(layout)
         return objsMenu
 
-    # MÉTODOS DA APLICAÇÃO
+    # FUNCIONALIDADES DA APLICAÇÃO
     def clickCreatePoint(self):
         self.poinMenu = CreatePointMenu(self.viewport, self.objListView)
         self.poinMenu.show()
@@ -99,11 +111,20 @@ class Ui(QMainWindow):
         self.wireframeMenu = CreateWireframeMenu(self.viewport, self.objListView)
         self.wireframeMenu.show()
 
-    # TODO: Criar menu que mostra os objs
-    # TODO: Criar menu que cria objs
-    # TODO: Criar menu que deleta objs
-    # TODO: Criar menu que edita objs
-    # TODO: Criar viewport
-    # TODO: implementar funcionalidade de zoom in/out
-    # TODO: implementar funcionalidade de mover esq/dir/cima/baixo
-    # TODO: implementar a transformada lá
+    def clickZoomIn(self):
+        self.viewport.zoomIn()
+
+    def clickZoomOut(self):
+        self.viewport.zoomOut()
+
+    def clickMoveUp(self):
+        self.viewport.moveUp()
+
+    def clickMoveLeft(self):
+        self.viewport.moveLeft()
+
+    def clickMoveRight(self):
+        self.viewport.moveRight()
+
+    def clickMoveDown(self):
+        self.viewport.moveDown()

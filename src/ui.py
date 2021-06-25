@@ -1,8 +1,8 @@
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QComboBox, QGroupBox, QMainWindow
 
-from src.createMenus import CreatePointMenu, CreateLineMenu, CreateWireframeMenu
-from src.world import World
+from createMenus import CreatePointMenu, CreateLineMenu, CreateWireframeMenu
+from world import World
 from viewport import Viewport
 
 

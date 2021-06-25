@@ -1,7 +1,7 @@
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QComboBox
-from src.objs import Point, Line, Wireframe
-from src.viewport import Viewport
+from objs import Point, Line, Wireframe
+from viewport import Viewport
 
 
 # classe base com elementos comuns a todas as classes de criacao de obj

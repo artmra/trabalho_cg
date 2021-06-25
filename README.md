@@ -26,10 +26,11 @@ deactivate
 ```
 
 ### Como usar o programa
+Todos os comandos são de certa forma intuitivos, com salva exceção da opção de deletar um objeto
 Para deletar um objeto, primeiro selecione ele no ComboBox como mostra na imagem e selecione a Lixeira para deletar o
-objeto
+objeto.
 
-![Image of DelObj](https://github.com/artmra/trabalho_cg/raw/main/src/images/delObj.png)
+![Image of DelObj](src/images/delObj.png)
 
 ### Links usados para auxílio no desenvolvimento do trabalho
 - [Conjunto de vídeos em br sobre PyQt5](https://www.youtube.com/playlist?list=PLwsAoT89dh3qJ8JcprQ8AuHY8AGasvx4G);

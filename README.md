@@ -25,6 +25,13 @@ Para desativar o ambiente virtual:
 deactivate
 ```
 
+### Como usar o programa
+Para deletar um objeto, primeiro selecione ele no ComboBox como mostra na imagem e selecione a Lixeira para deletar o
+objeto
+
+![Image of DelObj]
+(https://github.com/artmra/trabalho_cg/raw/main/src/images/delObj.png)
+
 ### Links usados para auxílio no desenvolvimento do trabalho
 - [Conjunto de vídeos em br sobre PyQt5](https://www.youtube.com/playlist?list=PLwsAoT89dh3qJ8JcprQ8AuHY8AGasvx4G);
 - [Tutorial de criação de calculadora com PyQt5](https://realpython.com/python-pyqt-gui-calculator/);

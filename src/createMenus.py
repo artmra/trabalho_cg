@@ -86,7 +86,7 @@ class CreateLineMenu(CreateMenu):
     def clickCreate(self):
         try:
             obj = Line(self.name.text(), [(self.x1.text(), self.y1.text()), (self.x2.text(), self.y2.text())])
-            if obj in self.viewport.scene().objs:
+            if obj in self.viewport.world.objs:
                 msg = QMessageBox()
                 msg.setWindowTitle('Erro no processo de criação')
                 msg.setText('Não é possível criar objetos com o mesmo nome ou informações parecidas.')
@@ -94,7 +94,7 @@ class CreateLineMenu(CreateMenu):
             else:
                 self.viewport.addObj(obj)
                 self.objListView.addItem(obj.name)
-                self.viewport.drawLine(obj)
+                self.viewport.update()
                 self.close()
         except Exception as e:
             msg = QMessageBox()

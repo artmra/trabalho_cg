@@ -4,8 +4,8 @@ class Window:
         self.world = world
         # caso em q é None
         if xyw_min is None or xyw_max is None:
-            self.xyw_min = (-100, 100)
-            self.xyw_max = (100, -100)
+            self.xyw_min = (-100, -100)
+            self.xyw_max = (100, 100)
         # caso em q n é None
         else:
             if not isinstance(xyw_min, tuple) or len(xyw_min) != 2:

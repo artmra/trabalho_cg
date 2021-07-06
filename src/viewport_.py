@@ -44,44 +44,44 @@ class Viewport(QWidget):
         qp.begin(self)
         for obj in self.world.objs:
             if obj.twoDType == TwoDObjType.POINT:
-                pass
+                self.drawPoint(qp, obj)
             elif obj.twoDType == TwoDObjType.LINE:
-                pass
+                self.drawLine(qp, obj)
             else:
-                pass
-        self.drawLine(qp)
+                self.drawWireframe(qp, obj)
         qp.end()
 
-    def drawPoint(self, point: Point):
+    def drawPoint(self, qp: QPainter, point: Point):
+        # qp.setPen(self.dotPen)
         x, y = self.viewportTransform(point.getX(), point.getY())
-        obj = self.scene().addLine(QLineF(x, y, x+1, y+1), self.dotPen)
-        self.scene().qGraphicsObjs[point] = [obj]
+        qp.drawPoint(x, y)
+        # obj = self.scene().addLine(QLineF(x, y, x+1, y+1), self.dotPen)
+        # self.scene().qGraphicsObjs[point] = [obj]
 
-    def drawLine(self, qp):
-        if len(self.world.objs) < 1:
-            return
-        line = self.world.objs[0]
+    def drawLine(self, qp: QPainter, line: Line):
+        # qp.setPen(self.linePen)
         x1, y1 = line.getX1_Y1()
         x1, y1 = self.viewportTransform(x1, y1)
         x2, y2 = line.getX2_Y2()
         x2, y2 = self.viewportTransform(x2, y2)
-        qp.setPen(Qt.red)
         qp.drawLine(x1, y1, x2, y2)
 
-    def drawWireframe(self, wireframe: Wireframe):
+    def drawWireframe(self, qp: QPainter, wireframe: Wireframe):
+        # qp.setPen(self.wirePen)
         x1, y1 = wireframe.coords[0]
         x1, y1 = self.viewportTransform(x1, y1)
         x0, y0 = x1, y1
-        points = []
+        # points = []
         for i in range(1, len(wireframe.coords)):
             x2, y2 = wireframe.coords[i]
             x2, y2 = self.viewportTransform(x2, y2)
-            obj = self.scene().addLine(QLineF(x1, y1, x2, y2), self.wirePen)
-            points.append(obj)
+            qp.drawLine(x1, y1, x2, y2)
+            # obj = self.world.addLine(QLineF(x1, y1, x2, y2), self.wirePen)
+            # points.append(obj)
             x1, y1 = x2, y2
-        obj = self.scene().addLine(QLineF(x1, y1, x0, y0), self.wirePen)
-        points.append(obj)
-        self.scene().qGraphicsObjs[wireframe] = points
+        qp.drawLine(x1, y1, x0, y0)
+        # points.append(obj)
+        # self.scene().qGraphicsObjs[wireframe] = points
 
     def zoomIn(self):
         self.window_.zoomIn()

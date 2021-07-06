@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QGraphicsScene
 
 
 # Classe que implementa o que corresponderia ao mundo da nossa aplicação, onde serão armazenados diversos obj 2D
-from src.objs import TwoDObj
+from objs import TwoDObj
 
 
 class World(QGraphicsScene):

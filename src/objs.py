@@ -35,6 +35,9 @@ class TwoDObj:
     def getCoords(self) -> list:
         return self.coords
 
+    def getCenter(self):
+        return self.coords
+
 
 # Classe que representa um ponto
 class Point(TwoDObj):
@@ -83,6 +86,13 @@ class Line(TwoDObj):
     def getX2_Y2(self) -> tuple:
         return self.x2_y2
 
+    def getCenter(self):
+        x1 = self.getX1_Y1().index(0)
+        y1 = self.getX1_Y1().index(1)
+        x2 = self.getX2_Y2().index(0)
+        y2 = self.getX2_Y2().index(1)
+        return (x1+x2)/2, (y1+y2)/2
+
 
 # Classe que representa um polígono
 class Wireframe(TwoDObj):
@@ -96,3 +106,11 @@ class Wireframe(TwoDObj):
                 self.coords.append(x_y)
             except Exception:
                 raise Exception('As coordenadas devem ser pares de números.')
+
+    def getCenter(self):
+        x = 0
+        y = 0
+        for x_y in self.coords:
+            x += x_y.index(0)
+            y += x_y.index(1)
+        return (x/len(self.coords)), (y/len(self.coords))

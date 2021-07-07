@@ -39,7 +39,7 @@ class CreatePointMenu(CreateMenu):
     def clickCreate(self):
         try:
             obj = Point(self.name.text(), (self.x.text(), self.y.text()))
-            if obj in self.viewport.scene().objs:
+            if obj in self.viewport.world.objs:
                 msg = QMessageBox()
                 msg.setWindowTitle('Erro no processo de criação')
                 msg.setText('Não é possível criar objetos com o mesmo nome ou informações parecidas.')
@@ -47,7 +47,7 @@ class CreatePointMenu(CreateMenu):
             else:
                 self.viewport.addObj(obj)
                 self.objListView.addItem(obj.name)
-                self.viewport.drawPoint(obj)
+                self.viewport.update()
                 self.close()
         except Exception as e:
             msg = QMessageBox()
@@ -118,7 +118,7 @@ class CreateWireframeMenu(CreateMenu):
         try:
             coords = [(xyin[0].text(), xyin[1].text()) for xyin in self.inputCoords]
             obj = Wireframe(self.name.text(), coords)
-            if obj in self.viewport.scene().objs:
+            if obj in self.viewport.world.objs:
                 msg = QMessageBox()
                 msg.setWindowTitle('Erro no processo de criação')
                 msg.setText('Não é possível criar objetos com o mesmo nome ou informações parecidas.')
@@ -126,7 +126,7 @@ class CreateWireframeMenu(CreateMenu):
             else:
                 self.viewport.addObj(obj)
                 self.objListView.addItem(obj.name)
-                self.viewport.drawWireframe(obj)
+                self.viewport.update()
                 self.close()
         except Exception as e:
             msg = QMessageBox()

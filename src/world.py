@@ -1,22 +1,15 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QBrush, QPen
-from PyQt5.QtWidgets import QGraphicsScene
-
-
 # Classe que implementa o que corresponderia ao mundo da nossa aplicação, onde serão armazenados diversos obj 2D
-from objs import TwoDObj
+from src.objs import TwoDObj
+from src.window import Window
 
-
-class World(QGraphicsScene):
+class World:
     def __init__(self):
-        super().__init__()
-        self.setBackgroundBrush(QBrush(Qt.white))
-        self.setSceneRect(0,0,800,800)
-        self.addRect(self.sceneRect(), QPen(Qt.NoPen), QBrush(Qt.black))
         # Lista de objs 2D do mundo
         self.objs = list()
-        # Dic que relaciona objs 2D à suas instancias equivalentes(lista de linhas q compoe o obj) como QGraphicsItens
-        self.qGraphicsObjs = dict()
+        self.window = Window(self)
+
+    def getWindow(self) -> Window:
+        return self.window
 
     def getObjs(self) -> list:
         # retorna todos os objs
@@ -38,16 +31,3 @@ class World(QGraphicsScene):
         # como o método de __eq__ dos objetos considera objetos com o mesmo nome iguais é possível deletar
         # um abj dessa maneira
         self.objs = [obj for obj in self.objs if obj != objToDelete]
-        listOfLines = self.qGraphicsObjs.pop(objToDelete)
-        for qGraphicsItem in listOfLines:
-            self.removeItem(qGraphicsItem)
-
-    def getWorlCoords(self) -> (float, float, float, float):
-        # coords = self.sceneRect().getCoords()
-        # xwmin = coords[0]
-        # ywmin = coords[1]
-        # xwmax = coords[2]
-        # ywmax = coords[3]
-        return self.sceneRect().getCoords()
-
-

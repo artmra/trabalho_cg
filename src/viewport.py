@@ -1,20 +1,21 @@
-from PyQt5.QtGui import QPen
-from PyQt5.QtWidgets import QGraphicsView, QMessageBox
-from PyQt5.QtCore import Qt, QLineF
+from PyQt5.QtGui import QPen, QPainter
+from PyQt5.QtWidgets import QMessageBox, QWidget
+from PyQt5.QtCore import Qt
 
-from objs import Line, Point, Wireframe, TwoDObj
-
+from src.objs import Line, Point, Wireframe, TwoDObj, TwoDObjType
 
 # Classe que implementa uma viewport para a aplicação
-class Viewport(QGraphicsView):
+class Viewport(QWidget):
 
     def __init__(self, world):
         super().__init__()
         self.setFixedSize(800, 800)
+        self.world = world
+        self.window_ = self.world.getWindow()
+        self.painter = QPainter()
         self.dotPen = QPen(Qt.red, 9, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin)
         self.linePen = QPen(Qt.green, 6, Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin)
         self.wirePen = QPen(Qt.blue, 3, Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin)
-        self.setScene(world)
 
     def getViewportCoords(self) -> (float, float, float, float):
         # coords = self.visibleRegion().boundingRect().getCoords()
@@ -25,70 +26,79 @@ class Viewport(QGraphicsView):
         return self.visibleRegion().boundingRect().getCoords()
 
     def viewportTransform(self, xw, yw) -> (float, float):
-        xwmin, ywmin, xwmax, ywmax = self.scene().getWorlCoords()
+        xwmin, ywmin, xwmax, ywmax = self.window_.getCoords()
         xvpmin, yvpmin, xvpmax, yvpmax = self.getViewportCoords()
         return ((float(xw) - xwmin)/(xwmax - xwmin))*(xvpmax - xvpmin), (1 - ((float(yw) - ywmin)/(ywmax - ywmin)))*(yvpmax - yvpmin)
 
-    def drawPoint(self, point: Point):
-        x, y = self.viewportTransform(point.getX(), point.getY())
-        obj = self.scene().addLine(QLineF(x, y, x+1, y+1), self.dotPen)
-        self.scene().qGraphicsObjs[point] = [obj]
+    def paintEvent(self, event):
+        qp = QPainter()
+        qp.begin(self)
+        for obj in self.world.objs:
+            if obj.twoDType == TwoDObjType.POINT:
+                self.drawPoint(qp, obj)
+            elif obj.twoDType == TwoDObjType.LINE:
+                self.drawLine(qp, obj)
+            else:
+                self.drawWireframe(qp, obj)
+        qp.end()
 
-    def drawLine(self, line: Line):
+    def drawPoint(self, qp: QPainter, point: Point):
+        x, y = self.viewportTransform(point.getX(), point.getY())
+        qp.drawPoint(x, y)
+
+    def drawLine(self, qp: QPainter, line: Line):
         x1, y1 = line.getX1_Y1()
         x1, y1 = self.viewportTransform(x1, y1)
         x2, y2 = line.getX2_Y2()
         x2, y2 = self.viewportTransform(x2, y2)
-        obj = self.scene().addLine(QLineF(x1, y1, x2, y2), self.linePen)
-        self.scene().qGraphicsObjs[line] = [obj]
+        qp.drawLine(x1, y1, x2, y2)
 
-    def drawWireframe(self, wireframe: Wireframe):
+    def drawWireframe(self, qp: QPainter, wireframe: Wireframe):
         x1, y1 = wireframe.coords[0]
         x1, y1 = self.viewportTransform(x1, y1)
         x0, y0 = x1, y1
-        points = []
         for i in range(1, len(wireframe.coords)):
             x2, y2 = wireframe.coords[i]
             x2, y2 = self.viewportTransform(x2, y2)
-            obj = self.scene().addLine(QLineF(x1, y1, x2, y2), self.wirePen)
-            points.append(obj)
+            qp.drawLine(x1, y1, x2, y2)
             x1, y1 = x2, y2
-        obj = self.scene().addLine(QLineF(x1, y1, x0, y0), self.wirePen)
-        points.append(obj)
-        self.scene().qGraphicsObjs[wireframe] = points
+        qp.drawLine(x1, y1, x0, y0)
 
     def zoomIn(self):
-        self.scale(1.2, 1.2)
+        self.window_.zoomIn()
+        self.update()
 
     def zoomOut(self):
-        self.scale(1/1.2, 1/1.2)
+        self.window_.zoomOut()
+        self.update()
 
     def moveUp(self):
-        scrollBar = self.verticalScrollBar()
-        scrollBar.setValue(scrollBar.value() - 20)
+        self.window_.moveUp()
+        self.update()
 
     def moveRight(self):
-        scrollBar = self.horizontalScrollBar()
-        scrollBar.setValue(scrollBar.value() + 20)
+        self.window_.moveRight()
+        self.update()
 
     def moveLeft(self):
-        scrollBar = self.horizontalScrollBar()
-        scrollBar.setValue(scrollBar.value() - 20)
+        self.window_.moveLeft()
+        self.update()
 
     def moveDown(self):
-        scrollBar = self.verticalScrollBar()
-        scrollBar.setValue(scrollBar.value() + 20)
+        self.window_.moveDown()
+        self.update()
 
     def addObj(self, obj: TwoDObj):
-        self.scene().objs.append(obj)
+        self.world.objs.append(obj)
+        self.update()
 
     def updateObj(self, obj: TwoDObj):
-        self.scene().objs.updateObj(obj)
+        self.world.updateObj(obj)
 
     def deleteObj(self, objName: str):
         try:
-            obj = self.scene().getObj(objName)
-            self.scene().deleteObj(obj)
+            self.world.deleteObj(self.world.getObj(objName))
+            self.update()
         except:
             msg = QMessageBox()
             msg.setWindowTitle('Não há o que excluir')

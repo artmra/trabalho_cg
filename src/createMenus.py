@@ -39,7 +39,7 @@ class CreatePointMenu(CreateMenu):
     def clickCreate(self):
         try:
             obj = Point(self.name.text(), (self.x.text(), self.y.text()))
-            if obj in self.viewport.world.objs:
+            if obj in self.viewport.scene().objs:
                 msg = QMessageBox()
                 msg.setWindowTitle('Erro no processo de criação')
                 msg.setText('Não é possível criar objetos com o mesmo nome ou informações parecidas.')
@@ -47,21 +47,20 @@ class CreatePointMenu(CreateMenu):
             else:
                 self.viewport.addObj(obj)
                 self.objListView.addItem(obj.name)
-                self.viewport.update()
+                self.viewport.drawPoint(obj)
                 self.close()
         except Exception as e:
             msg = QMessageBox()
             msg.setWindowTitle('Erro no processo de criação')
-            msg.setWindowIcon(QIcon('images/warning.svg'))
+            msg.setWindowIcon(QIcon('warning.svg'))
             msg.setText(str(e))
             x = msg.exec_()
 
 
-# janela de criacao de pontos
+# janela de criacao de linha
 class CreateLineMenu(CreateMenu):
     def __init__(self, viewport: Viewport, objListView: QComboBox):
         super().__init__('Criação de Linha', viewport, objListView)
-        # self.setFixedSize(200, 200)
         self.createButton.clicked.connect(self.clickCreate)
         layout = QGridLayout()
         self.x1 = QLineEdit()
@@ -110,7 +109,7 @@ class CreateWireframeMenu(CreateMenu):
         self.createButton.clicked.connect(self.clickCreate)
         self.addCoordButton = QPushButton()
         self.addCoordButton.setStyleSheet('border: none')
-        self.addCoordButton.setIcon(QIcon(QPixmap('images/addCoord.svg')))
+        self.addCoordButton.setIcon(QIcon(QPixmap('addCoord.svg')))
         self.inputCoords = [(QLineEdit(), QLineEdit()), (QLineEdit(), QLineEdit()), (QLineEdit(), QLineEdit())] if inputCoords is None else inputCoords
         self.loadLayout()
         self.addCoordButton.clicked.connect(self.updateLayout)
@@ -119,7 +118,7 @@ class CreateWireframeMenu(CreateMenu):
         try:
             coords = [(xyin[0].text(), xyin[1].text()) for xyin in self.inputCoords]
             obj = Wireframe(self.name.text(), coords)
-            if obj in self.viewport.world.objs:
+            if obj in self.viewport.scene().objs:
                 msg = QMessageBox()
                 msg.setWindowTitle('Erro no processo de criação')
                 msg.setText('Não é possível criar objetos com o mesmo nome ou informações parecidas.')
@@ -127,7 +126,7 @@ class CreateWireframeMenu(CreateMenu):
             else:
                 self.viewport.addObj(obj)
                 self.objListView.addItem(obj.name)
-                self.viewport.update()
+                self.viewport.drawWireframe(obj)
                 self.close()
         except Exception as e:
             msg = QMessageBox()

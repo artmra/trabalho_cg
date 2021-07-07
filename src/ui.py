@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QComboBox, QG
 from createMenus import CreatePointMenu, CreateLineMenu, CreateWireframeMenu
 from objs import Line, Point, Wireframe
 from src.objs import TwoDObj
-from world_ import World
-from viewport_ import Viewport
+from world import World
+from viewport import Viewport
 from world import World
 from viewport import Viewport
 

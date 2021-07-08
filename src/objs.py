@@ -35,10 +35,6 @@ class TwoDObj:
     def getCoords(self) -> list:
         return self.coords
 
-    def getCenter(self):
-        return self.coords
-
-
 # Classe que representa um ponto
 class Point(TwoDObj):
     def __init__(self, name, x_y=(0, 0)):
@@ -59,11 +55,8 @@ class Point(TwoDObj):
     def getY(self) -> float:
         return self.y
 
-    def setX(self, x):
-        self.x = float(x)
-
-    def setY(self, y):
-        self.y = float(y)
+    def getCenter(self):
+        return self.x, self.y
 
 
 # Classe que representa uma linha
@@ -93,10 +86,10 @@ class Line(TwoDObj):
         return self.x2_y2
 
     def getCenter(self):
-        x1 = self.getX1_Y1().index(0)
-        y1 = self.getX1_Y1().index(1)
-        x2 = self.getX2_Y2().index(0)
-        y2 = self.getX2_Y2().index(1)
+        x1 = self.getX1_Y1()[0]
+        y1 = self.getX1_Y1()[1]
+        x2 = self.getX2_Y2()[0]
+        y2 = self.getX2_Y2()[1]
         return (x1+x2)/2, (y1+y2)/2
 
 
@@ -117,6 +110,6 @@ class Wireframe(TwoDObj):
         x = 0
         y = 0
         for x_y in self.coords:
-            x += x_y.index(0)
-            y += x_y.index(1)
+            x += x_y[0]
+            y += x_y[1]
         return (x/len(self.coords)), (y/len(self.coords))

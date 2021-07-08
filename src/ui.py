@@ -1,8 +1,9 @@
 import numpy
 from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QComboBox, QGroupBox, QMainWindow, QLabel
+from PyQt5.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QComboBox, QGroupBox, QMainWindow, QLabel, \
+    QMessageBox
 
-from createMenus import CreatePointMenu, CreateLineMenu, CreateWireframeMenu
+from createMenus import CreatePointMenu, CreateLineMenu, CreateWireframeMenu, CreateTransformMenu
 from objs import Line, Point, Wireframe
 from src.objs import TwoDObj
 from world import World
@@ -121,6 +122,12 @@ class Ui(QMainWindow):
         delObjButton.setIcon(QIcon(QPixmap('delete.svg')))
         delObjButton.clicked.connect(self.clickDelOjb)
         layout.addWidget(delObjButton, 1, 0)
+        # botao para transformação de obj
+        addTransButton = QPushButton('Transformação')
+        addTransButton.setIcon(QIcon(QPixmap('draw.svg')))
+        addTransButton.clicked.connect(self.clickTransform)
+        layout.addWidget(addTransButton, 2, 0)
+
         objsMenu.setLayout(layout)
         return objsMenu
 
@@ -135,6 +142,16 @@ class Ui(QMainWindow):
     def clickCreatePolygon(self):
         self.wireframeMenu = CreateWireframeMenu(self.viewport, self.objListView)
         self.wireframeMenu.show()
+
+    def clickTransform(self):
+        if self.objListView.currentIndex() == -1:
+            msg = QMessageBox()
+            msg.setWindowTitle('Não há o que transformar')
+            msg.setText(str('A lista de objetos esta vazia.'))
+            x = msg.exec_()
+        else:
+            self.transformMenu = CreateTransformMenu(self.viewport, self.objListView)
+            self.transformMenu.show()
 
     def clickDelOjb(self):
         selectedItemName = self.objListView.currentText()
@@ -166,7 +183,10 @@ class Ui(QMainWindow):
 
     def _translate(self, obj: TwoDObj, points, matrix):
         # TODO get objeto
-        self.objListView.currentText()
+
+        print(self.world.getObj(obj.name))
+
+        current_obj_name = self.objListView.currentText()
         dx = 0
         dy = 0
         trans_mat = numpy.array([[1, 0, 0], [0, 1, 0], [dx, dy, 1]])
@@ -175,8 +195,11 @@ class Ui(QMainWindow):
             x = obj.getX()
             y = obj.getY()
             x_y = numpy.array([[x, y, 1]])
-            new_x_y = numpy.matmul(x_y, trans_mat)
-        #     TODO atualizar obj com as coordenadas
+            new_x, new_y, _ = numpy.matmul(x_y, trans_mat)
+            new_obj = Point(obj.name, (new_x, new_y))
+            self.world.updateObj(new_obj)
+            self.viewport.update()
+            print(new_obj)
         elif isinstance(obj, Line):
             x1 = obj.getX1_Y1().index(0)
             y1 = obj.getX1_Y1().index(1)

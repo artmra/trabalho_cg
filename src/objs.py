@@ -59,6 +59,12 @@ class Point(TwoDObj):
     def getY(self) -> float:
         return self.y
 
+    def setX(self, x):
+        self.x = float(x)
+
+    def setY(self, y):
+        self.y = float(y)
+
 
 # Classe que representa uma linha
 class Line(TwoDObj):

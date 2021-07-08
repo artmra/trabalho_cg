@@ -1,5 +1,6 @@
-from PyQt5.QtGui import QIcon, QPixmap
-from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QComboBox
+from PyQt5.QtGui import QIcon, QPixmap, QPalette, QColor
+from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QComboBox, QGroupBox, \
+    QTabWidget, QPlainTextEdit
 from objs import Point, Line, Wireframe
 from viewport import Viewport
 
@@ -12,9 +13,9 @@ class CreateMenu(QWidget):
         self.viewport = viewport
         self.objListView = objListView
         self.createButton = QPushButton('Criar')
-        self.createButton.setStyleSheet('border: none')
+        # self.createButton.setStyleSheet('border: none')
         self.cancelButton = QPushButton('Cancelar')
-        self.cancelButton.setStyleSheet('border: none')
+        # self.cancelButton.setStyleSheet('border: none')
         self.cancelButton.clicked.connect(self.close)
 
 # janela de criacao de pontos
@@ -100,6 +101,78 @@ class CreateLineMenu(CreateMenu):
             msg.setWindowTitle('Erro no processo de criação')
             msg.setText(str(e))
             x = msg.exec_()
+
+class CreateTransformMenu(CreateMenu):
+    def __init__(self, viewport: Viewport, objListView: QComboBox):
+        super().__init__('Transformação de objeto', viewport, objListView)
+        layout = QGridLayout()
+        self.setLayout(layout)
+
+        transform_group = QGroupBox('Transformações')
+        transform_group.setFixedSize(500, 300)
+        layout.addWidget(transform_group)
+
+        transformButton = QPushButton('Fazer Transformações')
+        layout.addWidget(transformButton, 1, 0)
+        layout.addWidget(self.cancelButton, 1, 1)
+        self.cancelButton.clicked.connect(self.close)
+
+        self.logger = QPlainTextEdit()
+        obj_name = objListView.currentText()
+        self.logger.setStyleSheet("background-color: rgb(230, 230, 230)")
+        self.logger.appendPlainText(f'-> Lista de Transformações do objeto {obj_name}:')
+        self.logger.setReadOnly(True)
+        self.logger.setFixedSize(250, 300)
+        layout.addWidget(self.logger, 0, 1)
+
+        tab_layout = QGridLayout()
+        transform_group.setLayout(tab_layout)
+
+        tabs = QTabWidget()
+        tabs.resize(300, 200)
+
+        # Scale Translate and Rotate menu
+        tabScale = self.create_scale_menu()
+        tabTranslate = self.create_translate_menu()
+        tabRotate = self.create_rotate_menu()
+
+        tabs.addTab(tabScale, "Escalonar")
+        tabs.addTab(tabTranslate, "Transladar")
+        tabs.addTab(tabRotate, "Rotacionar")
+        tab_layout.addWidget(tabs)
+
+    def create_scale_menu(self) -> QWidget:
+        tabScale = QWidget()
+        tabScale.layout = QGridLayout()
+        tabScale.setLayout(tabScale.layout)
+        tabScale.layout.addWidget(QLabel('Escala no eixo X:'), 0, 0)
+        # tabScale.layout.addWidget(self.name, 0, 3, 1, 2)
+        tabScale.layout.addWidget(QLabel('Escala no eixo Y'), 1, 0)
+        # tabScale.layout.addWidget(self.x1, 1, 1)
+        saveButton = QPushButton('Salvar')
+        tabScale.layout.addWidget(saveButton, 2, 0)
+
+        return tabScale
+
+    def create_translate_menu(self) -> QWidget:
+        tabTranslate = QWidget()
+        tabTranslate.layout = QGridLayout()
+        tabTranslate.setLayout(tabTranslate.layout)
+        tabTranslate.layout.addWidget(QLabel('Escala no eixo X:'), 0, 0, 1, 2)
+        # tabScale.layout.addWidget(self.name, 0, 3, 1, 2)
+        tabTranslate.layout.addWidget(QLabel('Escala no eixo Y'), 1, 0)
+        # tabScale.layout.addWidget(self.x1, 1, 1)
+        return tabTranslate
+
+    def create_rotate_menu(self) -> QWidget:
+        tabTranslate = QWidget()
+        tabTranslate.layout = QGridLayout()
+        tabTranslate.setLayout(tabTranslate.layout)
+        tabTranslate.layout.addWidget(QLabel('Escala no eixo X:'), 0, 0, 1, 2)
+        # tabScale.layout.addWidget(self.name, 0, 3, 1, 2)
+        tabTranslate.layout.addWidget(QLabel('Escala no eixo Y'), 1, 0)
+        # tabScale.layout.addWidget(self.x1, 1, 1)
+        return tabTranslate
 
 
 # janela de criacao de poligonos

@@ -151,6 +151,8 @@ class Ui(QMainWindow):
             x = msg.exec_()
         else:
             self.transformMenu = CreateTransformMenu(self.viewport, self.objListView)
+            self.transformMenu.translate_save_button.clicked.connect(self.click_translate)
+            self.transformMenu.transformButton.clicked.connect(self.click_transform)
             self.transformMenu.show()
 
     def clickDelOjb(self):
@@ -177,48 +179,83 @@ class Ui(QMainWindow):
     def clickMoveDown(self):
         self.viewport.moveDown()
 
-    # TODO TRANSFORM FINAL,Aqui sera enviado a matrix completa, com rotação escalonamento e translação
-    def _transform(self, points, matrix):
-        print("Hello")
-
-    def _translate(self, obj: TwoDObj, points, matrix):
-        # TODO get objeto
-
-        print(self.world.getObj(obj.name))
-
+    def click_transform(self):
+        trans_matrix = self.transformMenu.trans_matrix
         current_obj_name = self.objListView.currentText()
-        dx = 0
-        dy = 0
-        trans_mat = numpy.array([[1, 0, 0], [0, 1, 0], [dx, dy, 1]])
+        obj = self.world.getObj(current_obj_name)
 
         if isinstance(obj, Point):
             x = obj.getX()
             y = obj.getY()
-            x_y = numpy.array([[x, y, 1]])
-            new_x, new_y, _ = numpy.matmul(x_y, trans_mat)
+            x_y = numpy.array([x, y, 1])
+            new_x, new_y, _ = numpy.matmul(x_y, trans_matrix)
             new_obj = Point(obj.name, (new_x, new_y))
             self.world.updateObj(new_obj)
             self.viewport.update()
-            print(new_obj)
+            self.transformMenu.close()
         elif isinstance(obj, Line):
-            x1 = obj.getX1_Y1().index(0)
-            y1 = obj.getX1_Y1().index(1)
-            x2 = obj.getX2_Y2().index(0)
-            y2 = obj.getX2_Y2().index(1)
-            x_y1 = numpy.array([[x1, y1, 1]])
-            x_y2 = numpy.array([[x2, y2, 1]])
+            x1 = obj.getX1_Y1()[0]
+            y1 = obj.getX1_Y1()[1]
+            x2 = obj.getX2_Y2()[0]
+            y2 = obj.getX2_Y2()[1]
+            x_y1 = numpy.array([x1, y1, 1])
+            x_y2 = numpy.array([x2, y2, 1])
 
-            new_x1_y1 = numpy.matmul(x_y1, trans_mat)
-            new_x1_y1 = numpy.matmul(x_y2, trans_mat)
-        #     TODO atualizar obj
+            new_x1, new_y1, _ = numpy.matmul(x_y1, trans_matrix)
+            new_x2, new_y2, _ = numpy.matmul(x_y2, trans_matrix)
+
+            new_obj = Line(obj.name, [(new_x1, new_y1), (new_x2, new_y2)])
+            self.world.updateObj(new_obj)
+            self.viewport.update()
+            self.transformMenu.close()
         elif isinstance(obj, Wireframe):
-            result = list()
+            new_coords = list()
             for x_y in obj.getCoords():
-                x = x_y.index(0)
-                y = x_y.index(1)
-                matrix = numpy.array([[x, y, 1]])
-                result.append(numpy.matmul(matrix, trans_mat))
-        #     TODO atualizar obj
+                x = x_y[0]
+                y = x_y[1]
+                x_y = numpy.array([x, y, 1])
+
+                new_x, new_y, _ = numpy.matmul(x_y, trans_matrix)
+                new_coords.append((new_x, new_y))
+            new_obj = Wireframe(obj.name, new_coords)
+            self.world.updateObj(new_obj)
+            self.viewport.update()
+            self.transformMenu.close()
+
+    def click_translate(self):
+        obj_name = self.transformMenu.objListView.currentText()
+        obj = self.world.getObj(obj_name)
+        self._translate()
+
+    def _translate(self):
+        dx = float(self.transformMenu.desloc_x.text())
+        dy = float(self.transformMenu.desloc_y.text())
+        trans_mat = numpy.array([[1, 0, 0], [0, 1, 0], [dx, dy, 1]])
+
+        self.transformMenu.trans_matrix = numpy.matmul(self.transformMenu.trans_matrix, trans_mat)
+        self.transformMenu.logger.appendPlainText(f"-> TRANSLAÇÃO  Eixo X: {dx}    Eixo Y: {dy}\n")
+        #     if isinstance(obj, Point):
+        #     elif isinstance(obj, Line):
+        #     # x1 = obj.getX1_Y1().index(0)
+        #     # y1 = obj.getX1_Y1().index(1)
+        #     # x2 = obj.getX2_Y2().index(0)
+        #     # y2 = obj.getX2_Y2().index(1)
+        #     # x_y1 = numpy.array([[x1, y1, 1]])
+        #     # x_y2 = numpy.array([[x2, y2, 1]])
+        #     # new_x1_y1 = numpy.matmul(x_y1, trans_mat)
+        #     # new_x1_y1 = numpy.matmul(x_y2, trans_mat)
+        #
+        #     self.transformMenu.trans_matrix = numpy.matmul(self.transformMenu.trans_matrix, trans_mat)
+        #     self.transformMenu.logger.appendPlainText(f"-> TRANSLAÇÃO  Eixo X: {dx}    Eixo Y: {dy}\n")
+        #
+        # elif isinstance(obj, Wireframe):
+        #     result = list()
+        #     for x_y in obj.getCoords():
+        #         x = x_y.index(0)
+        #         y = x_y.index(1)
+        #         matrix = numpy.array([[x, y, 1]])
+        #         result.append(numpy.matmul(matrix, trans_mat))
+        # #     TODO atualizar obj
 
     # TODO Determinar centro do objeto rotacionar e voltar a posicao original
     def _rotate(self, obj: TwoDObj, angle, matrix):

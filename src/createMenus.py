@@ -1,3 +1,4 @@
+import numpy
 from PyQt5.QtGui import QIcon, QPixmap, QPalette, QColor
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QComboBox, QGroupBox, \
     QTabWidget, QPlainTextEdit, QFormLayout, QStackedLayout, QVBoxLayout
@@ -107,13 +108,15 @@ class CreateTransformMenu(CreateMenu):
         super().__init__('Transformação de objeto', viewport, objListView)
         layout = QGridLayout()
         self.setLayout(layout)
+        self.trans_matrix = numpy.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+
 
         transform_group = QGroupBox('Transformações')
         transform_group.setFixedSize(500, 300)
         layout.addWidget(transform_group)
 
-        transformButton = QPushButton('Fazer Transformações')
-        layout.addWidget(transformButton, 1, 0)
+        self.transformButton = QPushButton('Fazer Transformações')
+        layout.addWidget(self.transformButton, 1, 0)
         layout.addWidget(self.cancelButton, 1, 1)
         self.cancelButton.clicked.connect(self.close)
 
@@ -174,12 +177,16 @@ class CreateTransformMenu(CreateMenu):
         self.desloc_y = QLineEdit()
         tabTranslate.layout.addWidget(self.desloc_y, 1, 1)
 
-        self.saveButton = QPushButton('Salvar')
+        self.translate_save_button = QPushButton('Salvar')
         # TODO conectar função para salvar matriz de escalonamento
-        # self.saveButton.clicked.connect(self.clicked_save_button)
-        tabTranslate.layout.addWidget(self.saveButton, 2, 0)
+        # self.translate_save_button.clicked.connect(self.clicked_translate_button)
+        tabTranslate.layout.addWidget(self.translate_save_button, 2, 0)
 
         return tabTranslate
+
+    def clicked_translate_button(self):
+        print(self.desloc_x.text())
+
 
     def create_rotate_menu(self) -> QWidget:
         tabTranslate = QWidget()
@@ -194,11 +201,14 @@ class CreateTransformMenu(CreateMenu):
 
         self.stackedLayout = QStackedLayout()
 
+
         # Pagina centro do mundo
         page_1 = QWidget()
         page_1.layout = QFormLayout()
         page_1.setLayout(page_1.layout)
         page_1.layout.addRow("Angulo", QLineEdit())
+        save_page_1 = QPushButton('Salvar')
+        page_1.layout.addRow(save_page_1)
         self.stackedLayout.addWidget(page_1)
 
         # Pagina centro do objeto
@@ -206,6 +216,8 @@ class CreateTransformMenu(CreateMenu):
         page_2.layout = QFormLayout()
         page_2.setLayout(page_2.layout)
         page_2.layout.addRow("Angulo", QLineEdit())
+        save_page_2 = QPushButton('Salvar')
+        page_2.layout.addRow(save_page_2)
         self.stackedLayout.addWidget(page_2)
 
         # Pagina em torno de um ponto
@@ -214,21 +226,16 @@ class CreateTransformMenu(CreateMenu):
         page_3.setLayout(page_3.layout)
         page_3.layout.addRow("Angulo", QLineEdit())
         page_3.layout.addRow("Ponto", QLineEdit())
+
+        # TODO conectar função para salvar matriz de escalonamento
+        save_page_3 = QPushButton('Salvar')
+        page_3.layout.addRow(save_page_3)
         self.stackedLayout.addWidget(page_3)
+        # self.saveButton.clicked.connect(self.clicked_save_button)
 
         tabTranslate.layout.addWidget(self.pageCombo)
         tabTranslate.layout.addLayout(self.stackedLayout)
 
-        saveButton = QPushButton('Salvar')
-        # TODO conectar função para salvar matriz de escalonamento
-        # self.saveButton.clicked.connect(self.clicked_save_button)
-        tabTranslate.layout.addWidget(saveButton)
-
-
-        # tabTranslate.layout.addWidget(QLabel('Escala no eixo X:'), 0, 0)
-        # tabScale.layout.addWidget(self.name, 0, 3, 1, 2)
-        # tabTranslate.layout.addWidget(QLabel('Escala no eixo Y'), 1, 0)
-        # tabScale.layout.addWidget(self.x1, 1, 1)
         return tabTranslate
 
     def switchPage(self):
@@ -290,3 +297,4 @@ class CreateWireframeMenu(CreateMenu):
         layout.addWidget(self.createButton, len(self.inputCoords) + 2, 0, 1, 2)
         layout.addWidget(self.cancelButton, len(self.inputCoords) + 2, 3, 1, 2)
         self.setLayout(layout)
+

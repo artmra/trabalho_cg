@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QIcon, QPixmap, QPalette, QColor
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QComboBox, QGroupBox, \
-    QTabWidget, QPlainTextEdit
+    QTabWidget, QPlainTextEdit, QFormLayout, QStackedLayout, QVBoxLayout
 from objs import Point, Line, Wireframe
 from viewport import Viewport
 
@@ -146,34 +146,93 @@ class CreateTransformMenu(CreateMenu):
         tabScale.layout = QGridLayout()
         tabScale.setLayout(tabScale.layout)
         tabScale.layout.addWidget(QLabel('Escala no eixo X:'), 0, 0)
-        # tabScale.layout.addWidget(self.name, 0, 3, 1, 2)
-        tabScale.layout.addWidget(QLabel('Escala no eixo Y'), 1, 0)
-        # tabScale.layout.addWidget(self.x1, 1, 1)
-        saveButton = QPushButton('Salvar')
-        tabScale.layout.addWidget(saveButton, 2, 0)
+        self.scale_x = QLineEdit()
+        tabScale.layout.addWidget(self.scale_x, 0, 1)
+
+        tabScale.layout.addWidget(QLabel('Escala no eixo Y:'), 1, 0)
+        self.scale_y = QLineEdit()
+        tabScale.layout.addWidget(self.scale_y, 1, 1)
+
+        self.saveButton = QPushButton('Salvar')
+        # TODO conectar função para salvar matriz de escalonamento
+        # self.saveButton.clicked.connect(self.clicked_save_button)
+        tabScale.layout.addWidget(self.saveButton, 2, 0)
 
         return tabScale
+
+    # def clicked_save_button(self):
 
     def create_translate_menu(self) -> QWidget:
         tabTranslate = QWidget()
         tabTranslate.layout = QGridLayout()
         tabTranslate.setLayout(tabTranslate.layout)
-        tabTranslate.layout.addWidget(QLabel('Escala no eixo X:'), 0, 0, 1, 2)
-        # tabScale.layout.addWidget(self.name, 0, 3, 1, 2)
-        tabTranslate.layout.addWidget(QLabel('Escala no eixo Y'), 1, 0)
-        # tabScale.layout.addWidget(self.x1, 1, 1)
+        tabTranslate.layout.addWidget(QLabel('Deslocamento no eixo X:'), 0, 0)
+        self.desloc_x = QLineEdit()
+        tabTranslate.layout.addWidget(self.desloc_x, 0, 1)
+
+        tabTranslate.layout.addWidget(QLabel('Deslocamento no eixo Y:'), 1, 0)
+        self.desloc_y = QLineEdit()
+        tabTranslate.layout.addWidget(self.desloc_y, 1, 1)
+
+        self.saveButton = QPushButton('Salvar')
+        # TODO conectar função para salvar matriz de escalonamento
+        # self.saveButton.clicked.connect(self.clicked_save_button)
+        tabTranslate.layout.addWidget(self.saveButton, 2, 0)
+
         return tabTranslate
 
     def create_rotate_menu(self) -> QWidget:
         tabTranslate = QWidget()
-        tabTranslate.layout = QGridLayout()
+        tabTranslate.layout = QVBoxLayout()
         tabTranslate.setLayout(tabTranslate.layout)
-        tabTranslate.layout.addWidget(QLabel('Escala no eixo X:'), 0, 0, 1, 2)
+
+        self.pageCombo = QComboBox()
+        self.pageCombo.addItems(["Em torno do centro do mundo",
+                                 "Em torno do centro do objeto",
+                                 "Em torno de um ponto"])
+        self.pageCombo.activated.connect(self.switchPage)
+
+        self.stackedLayout = QStackedLayout()
+
+        # Pagina centro do mundo
+        page_1 = QWidget()
+        page_1.layout = QFormLayout()
+        page_1.setLayout(page_1.layout)
+        page_1.layout.addRow("Angulo", QLineEdit())
+        self.stackedLayout.addWidget(page_1)
+
+        # Pagina centro do objeto
+        page_2 = QWidget()
+        page_2.layout = QFormLayout()
+        page_2.setLayout(page_2.layout)
+        page_2.layout.addRow("Angulo", QLineEdit())
+        self.stackedLayout.addWidget(page_2)
+
+        # Pagina em torno de um ponto
+        page_3 = QWidget()
+        page_3.layout = QFormLayout()
+        page_3.setLayout(page_3.layout)
+        page_3.layout.addRow("Angulo", QLineEdit())
+        page_3.layout.addRow("Ponto", QLineEdit())
+        self.stackedLayout.addWidget(page_3)
+
+        tabTranslate.layout.addWidget(self.pageCombo)
+        tabTranslate.layout.addLayout(self.stackedLayout)
+
+        saveButton = QPushButton('Salvar')
+        # TODO conectar função para salvar matriz de escalonamento
+        # self.saveButton.clicked.connect(self.clicked_save_button)
+        tabTranslate.layout.addWidget(saveButton)
+
+
+        # tabTranslate.layout.addWidget(QLabel('Escala no eixo X:'), 0, 0)
         # tabScale.layout.addWidget(self.name, 0, 3, 1, 2)
-        tabTranslate.layout.addWidget(QLabel('Escala no eixo Y'), 1, 0)
+        # tabTranslate.layout.addWidget(QLabel('Escala no eixo Y'), 1, 0)
         # tabScale.layout.addWidget(self.x1, 1, 1)
         return tabTranslate
 
+    def switchPage(self):
+        self.stackedLayout.setCurrentIndex(self.pageCombo.currentIndex())
 
 # janela de criacao de poligonos
 class CreateWireframeMenu(CreateMenu):

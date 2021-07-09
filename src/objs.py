@@ -1,7 +1,9 @@
 from enum import Enum
 
-
 # Enum para tipos de objs 2D
+from PyQt5.QtGui import QColor
+
+
 class TwoDObjType(Enum):
     POINT = 0
     LINE = 1
@@ -10,10 +12,11 @@ class TwoDObjType(Enum):
 
 # Esquema padrão de todos os objs 2D
 class TwoDObj:
-    def __init__(self, name, twoDType):
+    def __init__(self, name, twoDType, color):
         self.name = str(name)
         self.twoDType = TwoDObjType(twoDType)
         self.coords = list()
+        self.color = QColor(int(color[0]), int(color[1]), int(color[2]), 127)
 
     def __eq__(self, other):
         # no contexto desse trabalho todos os objetos devem ter nomes diferentes, e caso sejam de tipos iguais n podem
@@ -35,10 +38,14 @@ class TwoDObj:
     def getCoords(self) -> list:
         return self.coords
 
+    def getColor(self) -> QColor:
+        return self.color
+
+
 # Classe que representa um ponto
 class Point(TwoDObj):
-    def __init__(self, name, x_y=(0, 0)):
-        super().__init__(name, 0)
+    def __init__(self, name, x_y=(0, 0), color=(0, 0, 0)):
+        super().__init__(name, 0, color)
         if not isinstance(x_y, tuple) or len(x_y) != 2:
             raise Exception('O param x_y deve ser uma tupla de 2 valores.')
         try:
@@ -61,8 +68,8 @@ class Point(TwoDObj):
 
 # Classe que representa uma linha
 class Line(TwoDObj):
-    def __init__(self, name, coords=[(0, 0), (1, 1)]):
-        super().__init__(name, 1)
+    def __init__(self, name, coords=[(0, 0), (1, 1)], color=(120, 120, 0)):
+        super().__init__(name, 1, color)
         try:
             x1_y1, x2_y2 = coords
         except:
@@ -90,13 +97,13 @@ class Line(TwoDObj):
         y1 = self.getX1_Y1()[1]
         x2 = self.getX2_Y2()[0]
         y2 = self.getX2_Y2()[1]
-        return (x1+x2)/2, (y1+y2)/2
+        return (x1 + x2) / 2, (y1 + y2) / 2
 
 
 # Classe que representa um polígono
 class Wireframe(TwoDObj):
-    def __init__(self, name, coords=[(0, 0), (1, 1), (0, 2)]):
-        super().__init__(name, 2)
+    def __init__(self, name, coords=[(0, 0), (1, 1), (0, 2)], color=(0, 0, 255)):
+        super().__init__(name, 2, color)
         for x_y in coords:
             if not isinstance(x_y, tuple) or len(x_y) != 2:
                 raise Exception('A lista de coordenadas deve conter apenas tuplas de dois valores.')
@@ -112,4 +119,4 @@ class Wireframe(TwoDObj):
         for x_y in self.coords:
             x += x_y[0]
             y += x_y[1]
-        return (x/len(self.coords)), (y/len(self.coords))
+        return (x / len(self.coords)), (y / len(self.coords))

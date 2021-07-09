@@ -260,23 +260,29 @@ class Ui(QMainWindow):
         cos = 0
         
         if around == 1:
-            sin = numpy.sin(float(self.transformMenu.angle1.text()) * numpy.pi / 180)
-            cos = numpy.cos(float(self.transformMenu.angle1.text()) * numpy.pi / 180)
+            angle = float(self.transformMenu.angle1.text())
+            self.transformMenu.logger.appendPlainText(
+                f"-> Rotação  de {angle}° em torno do mundo")
         elif around == 2:
+            angle = float(self.transformMenu.angle2.text())
             dx, dy = obj.getCenter()
-            sin = numpy.sin(float(self.transformMenu.angle2.text()) * numpy.pi/180)
-            cos = numpy.cos(float(self.transformMenu.angle2.text()) * numpy.pi/180)
+            self.transformMenu.logger.appendPlainText(
+                f"-> Rotação  de {angle}° em torno do centro do objeto")
         elif around == 3:
+            angle = float(self.transformMenu.angle3.text())
             dx = float(self.transformMenu.x3.text())
             dy = float(self.transformMenu.y3.text())
-            sin = numpy.sin(float(self.transformMenu.angle3.text()) * numpy.pi / 180)
-            cos = numpy.cos(float(self.transformMenu.angle3.text()) * numpy.pi / 180)
+            self.transformMenu.logger.appendPlainText(
+                f"-> Rotação  de {angle}° em torno do ponto ({dx},{dy})")
+
 
         self.transformMenu.desloc_x.setText(str(-dx))
         self.transformMenu.desloc_y.setText(str(-dy))
         self._translate()
 
-        # TODO rotacionar aqui
+        # ROTAÇÃO ACONTECE AQUI
+        sin = numpy.sin(angle * numpy.pi / 180)
+        cos = numpy.cos(angle * numpy.pi / 180)
         rotate_mat = numpy.array([[cos, -sin, 0], [sin, cos, 0], [0, 0, 1]])
         self.transformMenu.trans_matrix = numpy.matmul(self.transformMenu.trans_matrix, rotate_mat)
 

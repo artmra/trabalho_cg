@@ -235,14 +235,13 @@ class Ui(QMainWindow):
             self.viewport.update()
             self.transformMenu.close()
 
-    def _translate(self, log=True):
+    def _translate(self):
         dx = float(self.transformMenu.desloc_x.text())
         dy = float(self.transformMenu.desloc_y.text())
         trans_mat = numpy.array([[1, 0, 0], [0, 1, 0], [dx, dy, 1]])
 
         self.transformMenu.trans_matrix = numpy.matmul(self.transformMenu.trans_matrix, trans_mat)
-        if log:
-            self.transformMenu.logger.appendPlainText(f"-> TRANSLAÇÃO  Eixo X: {dx}    Eixo Y: {dy}\n")
+        self.transformMenu.logger.appendPlainText(f"-> TRANSLAÇÃO  Eixo X: {dx}    Eixo Y: {dy}\n")
 
         self.transformMenu.desloc_x.clear()
         self.transformMenu.desloc_y.clear()
@@ -257,25 +256,34 @@ class Ui(QMainWindow):
         # around = 3 -> rotacionar ao redor de um ponto qualquer
         dx = 0
         dy = 0
+        sin = 0
+        cos = 0
         
         if around == 1:
-            dx, dy = obj.getCenter()
+            sin = numpy.sin(float(self.transformMenu.angle1.text()) * numpy.pi / 180)
+            cos = numpy.cos(float(self.transformMenu.angle1.text()) * numpy.pi / 180)
         elif around == 2:
-            print("aqui")
+            dx, dy = obj.getCenter()
+            sin = numpy.sin(float(self.transformMenu.angle2.text()) * numpy.pi/180)
+            cos = numpy.cos(float(self.transformMenu.angle2.text()) * numpy.pi/180)
         elif around == 3:
-            print("aqui")
+            dx = float(self.transformMenu.x3.text())
+            dy = float(self.transformMenu.y3.text())
+            sin = numpy.sin(float(self.transformMenu.angle3.text()) * numpy.pi / 180)
+            cos = numpy.cos(float(self.transformMenu.angle3.text()) * numpy.pi / 180)
 
         self.transformMenu.desloc_x.setText(str(-dx))
         self.transformMenu.desloc_y.setText(str(-dy))
-        self._translate(False)
+        self._translate()
 
         # TODO rotacionar aqui
+        rotate_mat = numpy.array([[cos, -sin, 0], [sin, cos, 0], [0, 0, 1]])
+        self.transformMenu.trans_matrix = numpy.matmul(self.transformMenu.trans_matrix, rotate_mat)
 
         self.transformMenu.desloc_x.setText(str(dx))
         self.transformMenu.desloc_y.setText(str(dy))
-        self._translate(False)
+        self._translate()
 
-        rotate_mat = numpy.array([[1, 0, 0], [0, 1, 0], [dx, dy, 1]])
 
     def _scale(self):
         current_obj_name = self.objListView.currentText()
@@ -284,7 +292,7 @@ class Ui(QMainWindow):
 
         self.transformMenu.desloc_x.setText(str(-cx))
         self.transformMenu.desloc_y.setText(str(-cy))
-        self._translate(False)
+        self._translate()
 
         scale_x = float(self.transformMenu.scale_x.text())
         scale_y = float(self.transformMenu.scale_y.text())
@@ -293,6 +301,6 @@ class Ui(QMainWindow):
 
         self.transformMenu.desloc_x.setText(str(cx))
         self.transformMenu.desloc_y.setText(str(cy))
-        self._translate(False)
+        self._translate()
 
         self.transformMenu.logger.appendPlainText(f"-> ESCALONAMENTO  Eixo X: {scale_x}    Eixo Y: {scale_y}\n")

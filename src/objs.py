@@ -44,7 +44,7 @@ class TwoDObj:
 
 # Classe que representa um ponto
 class Point(TwoDObj):
-    def __init__(self, name, x_y=(0, 0), color=(0, 0, 0)):
+    def __init__(self, name, x_y=(0, 0), color=(255, 0, 0)):
         super().__init__(name, 0, color)
         if not isinstance(x_y, tuple) or len(x_y) != 2:
             raise Exception('O param x_y deve ser uma tupla de 2 valores.')
@@ -68,7 +68,7 @@ class Point(TwoDObj):
 
 # Classe que representa uma linha
 class Line(TwoDObj):
-    def __init__(self, name, coords=[(0, 0), (1, 1)], color=(120, 120, 0)):
+    def __init__(self, name, coords=[(0, 0), (1, 1)], color=(0, 255, 0)):
         super().__init__(name, 1, color)
         try:
             x1_y1, x2_y2 = coords

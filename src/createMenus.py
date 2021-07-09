@@ -50,7 +50,13 @@ class CreatePointMenu(CreateMenu):
 
     def clickCreate(self):
         try:
-            obj = Point(self.name.text(), (self.x.text(), self.y.text()), (int(self.R.text()), int(self.G.text()), int(self.B.text())))
+            try:
+                obj = Point(self.name.text(), (self.x.text(), self.y.text()), (int(self.R.text()), int(self.G.text()), int(self.B.text())))
+            except:
+                msg = QMessageBox()
+                msg.setText('Usando cor padrão para o tipo de obj criado.')
+                x = msg.exec_()
+                obj = Point(self.name.text(), (self.x.text(), self.y.text()))
             if obj in self.viewport.world.objs:
                 msg = QMessageBox()
                 msg.setWindowTitle('Erro no processo de criação')
@@ -106,7 +112,13 @@ class CreateLineMenu(CreateMenu):
 
     def clickCreate(self):
         try:
-            obj = Line(self.name.text(), [(self.x1.text(), self.y1.text()), (self.x2.text(), self.y2.text())], (int(self.R.text()), int(self.G.text()), int(self.B.text())))
+            try:
+                obj = Line(self.name.text(), [(self.x1.text(), self.y1.text()), (self.x2.text(), self.y2.text())], (int(self.R.text()), int(self.G.text()), int(self.B.text())))
+            except:
+                msg = QMessageBox()
+                msg.setText('Usando cor padrão para o tipo de obj criado.')
+                x = msg.exec_()
+                obj = Line(self.name.text(), [(self.x1.text(), self.y1.text()), (self.x2.text(), self.y2.text())])
             if obj in self.viewport.world.objs:
                 msg = QMessageBox()
                 msg.setWindowTitle('Erro no processo de criação')
@@ -276,7 +288,13 @@ class CreateWireframeMenu(CreateMenu):
     def clickCreate(self):
         try:
             coords = [(xyin[0].text(), xyin[1].text()) for xyin in self.inputCoords]
-            obj = Wireframe(self.name.text(), coords)
+            try:
+                obj = Wireframe(self.name.text(), coords, (int(self.R.text()), int(self.G.text()), int(self.B.text())))
+            except:
+                msg = QMessageBox()
+                msg.setText('Usando cor padrão para o tipo de obj criado.')
+                x = msg.exec_()
+                obj = Wireframe(self.name.text(), coords)
             if obj in self.viewport.world.objs:
                 msg = QMessageBox()
                 msg.setWindowTitle('Erro no processo de criação')
@@ -302,6 +320,9 @@ class CreateWireframeMenu(CreateMenu):
     def loadLayout(self):
         layout = QGridLayout()
         self.name = QLineEdit()
+        self.R = QLineEdit()
+        self.G = QLineEdit()
+        self.B = QLineEdit()
         layout.addWidget(QLabel('Nome:'), 0, 0, 1, 2)
         layout.addWidget(self.name, 0, 3, 1, 2)
         for n in range(0, len(self.inputCoords)):
@@ -313,8 +334,15 @@ class CreateWireframeMenu(CreateMenu):
             layout.addWidget(xInput, n_, 1)
             layout.addWidget(QLabel(f'Y{n_}:'), n_, 2)
             layout.addWidget(yInput, n_, 3)
-        layout.addWidget(self.addCoordButton, len(self.inputCoords) + 1, 0, 1, 4)
-        layout.addWidget(self.createButton, len(self.inputCoords) + 2, 0, 1, 2)
-        layout.addWidget(self.cancelButton, len(self.inputCoords) + 2, 3, 1, 2)
+        layout.addWidget(QLabel('Valores RGB'), len(self.inputCoords) + 1, 0, 1, 4)
+        layout.addWidget(QLabel('R:'), len(self.inputCoords) + 2, 0)
+        layout.addWidget(self.R, len(self.inputCoords) + 2, 1)
+        layout.addWidget(QLabel('G:'), len(self.inputCoords) + 3, 0)
+        layout.addWidget(self.G, len(self.inputCoords) + 3, 1)
+        layout.addWidget(QLabel('B:'), len(self.inputCoords) + 4, 0)
+        layout.addWidget(self.B, len(self.inputCoords) + 4, 1)
+        layout.addWidget(self.addCoordButton, len(self.inputCoords) + 5, 0, 1, 4)
+        layout.addWidget(self.createButton, len(self.inputCoords) + 6, 0, 1, 2)
+        layout.addWidget(self.cancelButton, len(self.inputCoords) + 6, 3, 1, 2)
         self.setLayout(layout)
 

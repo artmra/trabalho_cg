@@ -1,6 +1,6 @@
 # Classe que implementa o que corresponderia ao mundo da nossa aplicação, onde serão armazenados diversos obj 2D
-from src.objs import TwoDObj
-from src.window import Window
+from objs import TwoDObj
+from window import Window
 
 class World:
     def __init__(self):

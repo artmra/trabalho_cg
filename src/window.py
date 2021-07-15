@@ -1,3 +1,6 @@
+import numpy
+
+
 class Window:
     def __init__(self, world, xyw_min=None, xyw_max=None):
         self.world = world
@@ -34,32 +37,46 @@ class Window:
         return self.xyw_min[0], self.xyw_min[1], self.xyw_max[0], self.xyw_max[1]
 
     def moveUp(self):
-        self.xyw_min = (self.xyw_min[0], self.xyw_min[1] + self.fatorMovimento)
-        self.xyw_max = (self.xyw_max[0], self.xyw_max[1] + self.fatorMovimento)
+        # self.xyw_min = (self.xyw_min[0], self.xyw_min[1] + self.fatorMovimento)
+        # self.xyw_max = (self.xyw_max[0], self.xyw_max[1] + self.fatorMovimento)
+        self._translate(dy=self.fatorMovimento)
         self.newCenter = self.calcCenter()
 
     def moveDown(self):
-        self.xyw_min = (self.xyw_min[0], self.xyw_min[1] - self.fatorMovimento)
-        self.xyw_max = (self.xyw_max[0], self.xyw_max[1] - self.fatorMovimento)
+        # self.xyw_min = (self.xyw_min[0], self.xyw_min[1] - self.fatorMovimento)
+        # self.xyw_max = (self.xyw_max[0], self.xyw_max[1] - self.fatorMovimento)
+        self._translate(dy=(-1)*self.fatorMovimento)
         self.newCenter = self.calcCenter()
 
     def moveRight(self):
-        self.xyw_min = (self.xyw_min[0] + self.fatorMovimento, self.xyw_min[1])
-        self.xyw_max = (self.xyw_max[0] + self.fatorMovimento, self.xyw_max[1])
+        # self.xyw_min = (self.xyw_min[0] + self.fatorMovimento, self.xyw_min[1])
+        # self.xyw_max = (self.xyw_max[0] + self.fatorMovimento, self.xyw_max[1])
+        self._translate(dx=self.fatorMovimento)
         self.newCenter = self.calcCenter()
 
     def moveLeft(self):
-        self.xyw_min = (self.xyw_min[0] - self.fatorMovimento, self.xyw_min[1])
-        self.xyw_max = (self.xyw_max[0] - self.fatorMovimento, self.xyw_max[1])
+        # self.xyw_min = (self.xyw_min[0] - self.fatorMovimento, self.xyw_min[1])
+        # self.xyw_max = (self.xyw_max[0] - self.fatorMovimento, self.xyw_max[1])
+        self._translate(dx=(-1)*self.fatorMovimento)
         self.newCenter = self.calcCenter()
 
+    def _translate(self, dx=0, dy=0):
+        window_coords = numpy.array([[self.xyw_min[0], self.xyw_min[1], 1],
+                                    [self.xyw_max[0], self.xyw_max[1], 1]])
+        translate_matrix = numpy.array([[1, 0, 0], [0, 1, 0], [dx, dy, 1]])
+        xyw_min, xyw_max = numpy.matmul(window_coords, translate_matrix)
+        self.xyw_min = (xyw_min[0], xyw_min[1])
+        self.xyw_max = (xyw_max[0], xyw_max[1])
+
     def zoomIn(self):
+        # aplicar um fator de escala 0.9
         self.fatorMovimento = self.fatorMovimento * 0.9
         self.xyw_min = (self.xyw_min[0] * 0.9, self.xyw_min[1] * 0.9)
         self.xyw_max = (self.xyw_max[0] * 0.9, self.xyw_max[1] * 0.9)
         self.newCenter = self.calcCenter()
 
     def zoomOut(self):
+        # aplicar um fator de
         self.fatorMovimento = self.fatorMovimento * 1.1
         self.xyw_min = (self.xyw_min[0] * 1.1, self.xyw_min[1] * 1.1)
         self.xyw_max = (self.xyw_max[0] * 1.1, self.xyw_max[1] * 1.1)

@@ -37,26 +37,18 @@ class Window:
         return self.xyw_min[0], self.xyw_min[1], self.xyw_max[0], self.xyw_max[1]
 
     def moveUp(self):
-        # self.xyw_min = (self.xyw_min[0], self.xyw_min[1] + self.fatorMovimento)
-        # self.xyw_max = (self.xyw_max[0], self.xyw_max[1] + self.fatorMovimento)
         self._translate(dy=self.fatorMovimento)
         self.newCenter = self.calcCenter()
 
     def moveDown(self):
-        # self.xyw_min = (self.xyw_min[0], self.xyw_min[1] - self.fatorMovimento)
-        # self.xyw_max = (self.xyw_max[0], self.xyw_max[1] - self.fatorMovimento)
         self._translate(dy=(-1)*self.fatorMovimento)
         self.newCenter = self.calcCenter()
 
     def moveRight(self):
-        # self.xyw_min = (self.xyw_min[0] + self.fatorMovimento, self.xyw_min[1])
-        # self.xyw_max = (self.xyw_max[0] + self.fatorMovimento, self.xyw_max[1])
         self._translate(dx=self.fatorMovimento)
         self.newCenter = self.calcCenter()
 
     def moveLeft(self):
-        # self.xyw_min = (self.xyw_min[0] - self.fatorMovimento, self.xyw_min[1])
-        # self.xyw_max = (self.xyw_max[0] - self.fatorMovimento, self.xyw_max[1])
         self._translate(dx=(-1)*self.fatorMovimento)
         self.newCenter = self.calcCenter()
 
@@ -69,15 +61,33 @@ class Window:
         self.xyw_max = (xyw_max[0], xyw_max[1])
 
     def zoomIn(self):
-        # aplicar um fator de escala 0.9
+        self._scale(scale=0.9)
         self.fatorMovimento = self.fatorMovimento * 0.9
-        self.xyw_min = (self.xyw_min[0] * 0.9, self.xyw_min[1] * 0.9)
-        self.xyw_max = (self.xyw_max[0] * 0.9, self.xyw_max[1] * 0.9)
         self.newCenter = self.calcCenter()
 
     def zoomOut(self):
-        # aplicar um fator de
+        self._scale(scale=1.1)
         self.fatorMovimento = self.fatorMovimento * 1.1
-        self.xyw_min = (self.xyw_min[0] * 1.1, self.xyw_min[1] * 1.1)
-        self.xyw_max = (self.xyw_max[0] * 1.1, self.xyw_max[1] * 1.1)
         self.newCenter = self.calcCenter()
+
+    # escala um obj
+    def _scale(self, scale=1):
+        # centro do obj
+        cx, cy = self.center
+        # coords do mundo
+        window_coords = numpy.array([[self.xyw_min[0], self.xyw_min[1], 1],
+                                     [self.xyw_max[0], self.xyw_max[1], 1]])
+        # ajusta o centro do mundo com o obj
+        translate_matrix_1 = numpy.array([[1, 0, 0], [0, 1, 0], [(-1)*cx, (-1)*cy, 1]])
+        # realiza o escalonamento(num sei se esse e o termo correto)
+        scale_matrix = numpy.array([[scale, 0, 0], [0, scale, 0], [0, 0, 1]])
+        # reverte o ajuste do centro do mundo com o obj
+        translate_matrix_2 = numpy.array([[1, 0, 0], [0, 1, 0], [cx, cy, 1]])
+        # monta uma matriz que aplica todas as transformacoes
+        transformations = numpy.matmul(translate_matrix_1, scale_matrix)
+        transformations = numpy.matmul(transformations, translate_matrix_2)
+        # aplica as transformacoes
+        xyw_min, xyw_max = numpy.matmul(window_coords, transformations)
+        # atualiza xyw_min/max
+        self.xyw_min = (xyw_min[0], xyw_min[1])
+        self.xyw_max = (xyw_max[0], xyw_max[1])

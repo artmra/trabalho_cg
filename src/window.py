@@ -25,6 +25,7 @@ class Window:
         # define o novo centro(var que pode ser utilizada em futuros calculos envolvendo o centro da window)
         self.newCenter = self.center
         self.fatorMovimento = 10
+        # TODO: definir uma representacao da window como obj 2d(wireframe) afim de utilizar os metodos de translacao, rotacao e "escalonamento" ja definidos.
 
     def calcCenter(self) -> tuple:
         return ((self.xyw_min[0] + self.xyw_max[0]) / 2, (self.xyw_min[1] + self.xyw_max[1]) / 2)

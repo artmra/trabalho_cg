@@ -1,13 +1,8 @@
-import numpy
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QComboBox, QGroupBox, QMainWindow, QLabel, \
     QMessageBox
 
 from createMenus import CreatePointMenu, CreateLineMenu, CreateWireframeMenu, CreateTransformMenu
-from objs import Line, Point, Wireframe
-from objs import TwoDObj
-from world import World
-from viewport import Viewport
 from world import World
 from viewport import Viewport
 
@@ -151,12 +146,6 @@ class Ui(QMainWindow):
             x = msg.exec_()
         else:
             self.transformMenu = CreateTransformMenu(self.viewport, self.objListView)
-            self.transformMenu.translate_save_button.clicked.connect(self._translate)
-            self.transformMenu.scale_save_button.clicked.connect(self._scale)
-            self.transformMenu.save_point_button.clicked.connect(self.click_rotate_point)
-            self.transformMenu.save_world_center_button.clicked.connect(self.click_rotate_world)
-            self.transformMenu.save_obj_center_button.clicked.connect(self.click_rotate_obj)
-            self.transformMenu.transformButton.clicked.connect(self.click_transform)
             self.transformMenu.show()
 
     def clickDelOjb(self):
@@ -166,6 +155,7 @@ class Ui(QMainWindow):
         self.objListView.removeItem(index)
 
     def clickZoomIn(self):
+        # todo: usar o meio do
         self.viewport.zoomIn()
 
     def clickZoomOut(self):
@@ -182,131 +172,3 @@ class Ui(QMainWindow):
 
     def clickMoveDown(self):
         self.viewport.moveDown()
-
-    def click_rotate_world(self):
-        self._rotate(1)
-
-    def click_rotate_obj(self):
-        self._rotate(2)
-
-    def click_rotate_point(self):
-        self._rotate(3)
-
-    def click_transform(self):
-        trans_matrix = self.transformMenu.trans_matrix
-        current_obj_name = self.objListView.currentText()
-        obj = self.world.getObj(current_obj_name)
-
-        if isinstance(obj, Point):
-            x = obj.getX()
-            y = obj.getY()
-            x_y = numpy.array([x, y, 1])
-            new_x, new_y, _ = numpy.matmul(x_y, trans_matrix)
-            new_obj = Point(obj.name, (new_x, new_y))
-            self.world.updateObj(new_obj)
-            self.viewport.update()
-            self.transformMenu.close()
-        elif isinstance(obj, Line):
-            x1 = obj.getX1_Y1()[0]
-            y1 = obj.getX1_Y1()[1]
-            x2 = obj.getX2_Y2()[0]
-            y2 = obj.getX2_Y2()[1]
-            x_y1 = numpy.array([x1, y1, 1])
-            x_y2 = numpy.array([x2, y2, 1])
-
-            new_x1, new_y1, _ = numpy.matmul(x_y1, trans_matrix)
-            new_x2, new_y2, _ = numpy.matmul(x_y2, trans_matrix)
-
-            new_obj = Line(obj.name, [(new_x1, new_y1), (new_x2, new_y2)])
-            self.world.updateObj(new_obj)
-            self.viewport.update()
-            self.transformMenu.close()
-        elif isinstance(obj, Wireframe):
-            new_coords = list()
-            for x_y in obj.getCoords():
-                x = x_y[0]
-                y = x_y[1]
-                x_y = numpy.array([x, y, 1])
-
-                new_x, new_y, _ = numpy.matmul(x_y, trans_matrix)
-                new_coords.append((new_x, new_y))
-            new_obj = Wireframe(obj.name, new_coords)
-            self.world.updateObj(new_obj)
-            self.viewport.update()
-            self.transformMenu.close()
-
-    def _translate(self):
-        dx = float(self.transformMenu.desloc_x.text())
-        dy = float(self.transformMenu.desloc_y.text())
-        trans_mat = numpy.array([[1, 0, 0], [0, 1, 0], [dx, dy, 1]])
-
-        self.transformMenu.trans_matrix = numpy.matmul(self.transformMenu.trans_matrix, trans_mat)
-        self.transformMenu.logger.appendPlainText(f"-> TRANSLAÇÃO  Eixo X: {dx}    Eixo Y: {dy}\n")
-
-        self.transformMenu.desloc_x.clear()
-        self.transformMenu.desloc_y.clear()
-
-    # TODO Determinar centro do objeto rotacionar e voltar a posicao original
-    def _rotate(self, around):
-        current_obj_name = self.objListView.currentText()
-        obj = self.world.getObj(current_obj_name)
-
-        # around = 1 -> rotacionar ao redor do mundo
-        # around = 2 -> rotacionar ao redor do centro do obj
-        # around = 3 -> rotacionar ao redor de um ponto qualquer
-        dx = 0
-        dy = 0
-        sin = 0
-        cos = 0
-        
-        if around == 1:
-            angle = float(self.transformMenu.angle1.text())
-            self.transformMenu.logger.appendPlainText(
-                f"-> Rotação  de {angle}° em torno do mundo")
-        elif around == 2:
-            angle = float(self.transformMenu.angle2.text())
-            dx, dy = obj.getCenter()
-            self.transformMenu.logger.appendPlainText(
-                f"-> Rotação  de {angle}° em torno do centro do objeto")
-        elif around == 3:
-            angle = float(self.transformMenu.angle3.text())
-            dx = float(self.transformMenu.x3.text())
-            dy = float(self.transformMenu.y3.text())
-            self.transformMenu.logger.appendPlainText(
-                f"-> Rotação  de {angle}° em torno do ponto ({dx},{dy})")
-
-
-        self.transformMenu.desloc_x.setText(str(-dx))
-        self.transformMenu.desloc_y.setText(str(-dy))
-        self._translate()
-
-        # ROTAÇÃO ACONTECE AQUI
-        sin = numpy.sin(angle * numpy.pi / 180)
-        cos = numpy.cos(angle * numpy.pi / 180)
-        rotate_mat = numpy.array([[cos, -sin, 0], [sin, cos, 0], [0, 0, 1]])
-        self.transformMenu.trans_matrix = numpy.matmul(self.transformMenu.trans_matrix, rotate_mat)
-
-        self.transformMenu.desloc_x.setText(str(dx))
-        self.transformMenu.desloc_y.setText(str(dy))
-        self._translate()
-
-
-    def _scale(self):
-        current_obj_name = self.objListView.currentText()
-        obj = self.world.getObj(current_obj_name)
-        cx, cy = obj.getCenter()
-
-        self.transformMenu.desloc_x.setText(str(-cx))
-        self.transformMenu.desloc_y.setText(str(-cy))
-        self._translate()
-
-        scale_x = float(self.transformMenu.scale_x.text())
-        scale_y = float(self.transformMenu.scale_y.text())
-        scale_mat = numpy.array([[scale_x, 0, 0], [0, scale_y, 0], [0, 0, 1]])
-        self.transformMenu.trans_matrix = numpy.matmul(self.transformMenu.trans_matrix, scale_mat)
-
-        self.transformMenu.desloc_x.setText(str(cx))
-        self.transformMenu.desloc_y.setText(str(cy))
-        self._translate()
-
-        self.transformMenu.logger.appendPlainText(f"-> ESCALONAMENTO  Eixo X: {scale_x}    Eixo Y: {scale_y}\n")

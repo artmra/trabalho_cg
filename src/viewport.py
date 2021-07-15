@@ -6,6 +6,8 @@ from objs import Line, Point, Wireframe, TwoDObj, TwoDObjType
 
 
 # Classe que implementa uma viewport para a aplicação
+
+
 class Viewport(QWidget):
 
     def __init__(self, world):
@@ -44,6 +46,7 @@ class Viewport(QWidget):
                 self.drawWireframe(obj)
 
     def drawExys(self):
+        # todo: usar coords normalizadas
         p = QPainter()
         p.begin(self)
         p.setPen(Qt.gray)
@@ -57,6 +60,7 @@ class Viewport(QWidget):
         p.end()
 
     def drawPoint(self, point: Point):
+        # todo: usar coords normalizadas
         p = QPainter()
         p.begin(self)
         p.setPen(QPen(point.getColor(), 5, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
@@ -65,6 +69,7 @@ class Viewport(QWidget):
         p.end()
 
     def drawLine(self, line: Line):
+        # todo: usar coords normalizadas
         p = QPainter()
         p.begin(self)
         p.setPen(QPen(line.getColor(), 3, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
@@ -76,6 +81,7 @@ class Viewport(QWidget):
         p.end()
 
     def drawWireframe(self, wireframe: Wireframe):
+        # todo: usar coords normalizadas
         p = QPainter()
         p.begin(self)
         p.setPen(QPen(wireframe.getColor(), 3, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
@@ -128,5 +134,5 @@ class Viewport(QWidget):
         except:
             msg = QMessageBox()
             msg.setWindowTitle('Não há o que excluir')
-            msg.setText(str('A liste de objetos ja sta vazia.'))
+            msg.setText(str('A liste de objetos ja está vazia.'))
             x = msg.exec_()

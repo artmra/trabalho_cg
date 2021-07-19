@@ -69,6 +69,12 @@ class Ui(QMainWindow):
         zoomOutButton.setIcon(QIcon(QPixmap('zoomout.svg')))
         zoomOutButton.clicked.connect(self.clickZoomOut)
         layout.addWidget(zoomOutButton, 5, 2, 1, 2)
+        rotateRightButton = QPushButton('horario')
+        rotateRightButton.clicked.connect(self.clickRotateRight)
+        layout.addWidget(rotateRightButton, 6, 2, 1, 2)
+        rotateLefttButton = QPushButton('anti-horario')
+        rotateLefttButton.clicked.connect(self.clickRotateLeft)
+        layout.addWidget(rotateLefttButton, 6, 0, 1, 2)
 
         movMenu.setLayout(layout)
         return movMenu
@@ -172,3 +178,9 @@ class Ui(QMainWindow):
 
     def clickMoveDown(self):
         self.viewport.moveDown()
+
+    def clickRotateRight(self):
+        self.viewport.rotateRight()
+
+    def clickRotateLeft(self):
+        self.viewport.rotateLeft()

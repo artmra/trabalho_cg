@@ -30,13 +30,19 @@ class Viewport(QWidget):
         return self.visibleRegion().boundingRect().getCoords()
 
     def viewportTransform(self, xw, yw) -> (float, float):
+        # aplicar a matriz scn da window as coordenadas do mundo
+        xw, yw = self.window_.applySCNMatrixToPoint(xw, yw)
+        # realiza a transformada de viewport
         xwmin, ywmin, xwmax, ywmax = self.window_.getCoords()
+        # # aplica a matriz scn ao x/yw min/max
+        xwmin, ywmin = self.window_.applySCNMatrixToPoint(xwmin, ywmin)
+        xwmax, ywmax = self.window_.applySCNMatrixToPoint(xwmax, ywmax)
         xvpmin, yvpmin, xvpmax, yvpmax = self.getViewportCoords()
         return ((float(xw) - xwmin) / (xwmax - xwmin)) * (xvpmax - xvpmin), (
                     1 - ((float(yw) - ywmin) / (ywmax - ywmin))) * (yvpmax - yvpmin)
 
     def paintEvent(self, event):
-        self.drawExys()
+        # self.drawExys()
         for obj in self.world.objs:
             if obj.twoDType.value == TwoDObjType.POINT.value:
                 self.drawPoint(obj)
@@ -47,17 +53,22 @@ class Viewport(QWidget):
 
     def drawExys(self):
         # todo: usar coords normalizadas
-        p = QPainter()
-        p.begin(self)
-        p.setPen(Qt.gray)
-        xwmin, ywmin, xwmax, ywmax = self.window_.getCoords()
-        x1, y1 = self.viewportTransform(xwmin, 0)
-        x2, y2 = self.viewportTransform(xwmax, 0)
-        p.drawLine(x1, y1, x2, y2)
-        x1, y1 = self.viewportTransform(0, ywmin)
-        x2, y2 = self.viewportTransform(0, ywmax)
-        p.drawLine(x1, y1, x2, y2)
-        p.end()
+        p1 = QPainter()
+        p2 = QPainter()
+        p1.begin(self)
+        p1.setPen(Qt.blue)
+        lenght, height = self.window_.getWindowDimensions()
+        x1, y1 = self.viewportTransform((-1) * lenght/2, 0)
+        x2, y2 = self.viewportTransform(lenght/2, 0)
+        p1.drawLine(x1, y1, x2, y2)
+        p1.end()
+        p2.begin(self)
+        p2.setPen(Qt.red)
+        x1, y1 = self.viewportTransform(0, (-1) * height/2)
+        x2, y2 = self.viewportTransform(0, height/2)
+        p2.drawLine(x1, y1, x2, y2)
+        p2.end()
+        # pass
 
     def drawPoint(self, point: Point):
         # todo: usar coords normalizadas
@@ -118,6 +129,14 @@ class Viewport(QWidget):
 
     def moveDown(self):
         self.window_.moveDown()
+        self.update()
+
+    def rotateRight(self):
+        self.window_.rotateRight()
+        self.update()
+
+    def rotateLeft(self):
+        self.window_.rotateLeft()
         self.update()
 
     def addObj(self, obj: TwoDObj):

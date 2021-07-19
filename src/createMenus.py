@@ -55,9 +55,6 @@ class CreatePointMenu(CreateMenu):
                 obj = Point(self.name.text(), (self.x.text(), self.y.text()),
                             (int(self.R.text()), int(self.G.text()), int(self.B.text())))
             except:
-                msg = QMessageBox()
-                msg.setText('Usando cor padrão para o tipo de obj criado.')
-                x = msg.exec_()
                 obj = Point(self.name.text(), (self.x.text(), self.y.text()))
             if obj in self.viewport.world.objs:
                 msg = QMessageBox()
@@ -118,9 +115,6 @@ class CreateLineMenu(CreateMenu):
                 obj = Line(self.name.text(), [(self.x1.text(), self.y1.text()), (self.x2.text(), self.y2.text())],
                            (int(self.R.text()), int(self.G.text()), int(self.B.text())))
             except:
-                msg = QMessageBox()
-                msg.setText('Usando cor padrão para o tipo de obj criado.')
-                x = msg.exec_()
                 obj = Line(self.name.text(), [(self.x1.text(), self.y1.text()), (self.x2.text(), self.y2.text())])
             if obj in self.viewport.world.objs:
                 msg = QMessageBox()
@@ -158,9 +152,6 @@ class CreateWireframeMenu(CreateMenu):
             try:
                 obj = Wireframe(self.name.text(), coords, (int(self.R.text()), int(self.G.text()), int(self.B.text())))
             except:
-                msg = QMessageBox()
-                msg.setText('Usando cor padrão para o tipo de obj criado.')
-                x = msg.exec_()
                 obj = Wireframe(self.name.text(), coords)
             if obj in self.viewport.world.objs:
                 msg = QMessageBox()

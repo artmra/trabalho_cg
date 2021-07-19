@@ -2,6 +2,7 @@ from enum import Enum
 
 # Enum para tipos de objs 2D
 from PyQt5.QtGui import QColor
+import os
 
 
 class TwoDObjType(Enum):
@@ -28,6 +29,9 @@ class TwoDObj:
     def __hash__(self):
         # implementada para permitir usar objs 2d como keys em dicts
         return hash((self.name, self.twoDType.value))
+    # TODO 3D set coord of z axis
+    def objString(self):
+        return f'v {self.coords.pop(0)} {self.coords.pop(1)} 0.0'
 
     def getName(self) -> str:
         return self.name
@@ -120,3 +124,75 @@ class Wireframe(TwoDObj):
             x += x_y[0]
             y += x_y[1]
         return (x / len(self.coords)), (y / len(self.coords))
+
+
+class DescritorOBJ:
+    def __init__(self):
+        self.count = 1
+        self.coords = dict()
+        self.mtls = dict()
+        self.list_objs = list()
+
+    def importObj(self, filename):
+        try:
+            with open(filename) as file:
+                for line in file:
+                    if line.startswith("v"):
+                        coords = ''.join(line.split('v ', 1))
+                        coord_list = list()
+                        for coord in coords.split(" ", 2):
+                            coord_list.append(float(coord))
+                        self.coords[self.count] = coord_list
+                        self.count += 1
+                    elif line.startswith("mtllib"):
+                        mtl_file = ''.join(line.split('mtllib ')).replace('\n', "")
+                        mtl_file = filename.rsplit('/', 1)[0] + '/' + mtl_file
+                        self.import_mtl(mtl_file)
+                    elif line.startswith("o"):
+                        obj_name = ''.join(line.split('o ')).replace('\n', "")
+                        color = (255, 255, 0)  # Default color if doesnt specify in the file
+                        next_line = next(file)
+                        # Colors
+                        if next_line.startswith("usemtl"):
+                            mtl = ''.join(next_line.split('usemtl ')).replace('\n', "")
+                            color = self.mtls[mtl]
+                            next_line = next(file)
+                        # Coords
+                        x_y = list()
+                        obj_coord = ''.join(next_line[2:]).replace('\n', "").split()
+                        for point in obj_coord:
+                            x = self.coords.get(int(point))[0]
+                            y = self.coords.get(int(point))[1]
+                            # TODO z axis here on 3D version
+                            x_y.append((x, y))
+                        if next_line.startswith("p"):
+                            self.list_objs.append(Point(obj_name, x_y[0], color))
+                        elif next_line.startswith("l"):
+                            try:
+                                self.list_objs.append(Line(obj_name, x_y, color))
+                            except:
+                                try:
+                                    self.list_objs.append(Wireframe(obj_name, x_y, color))
+                                except Exception as e:
+                                    return e
+        except Exception as e:
+            return e
+
+    def import_mtl(self, mtl_filename):
+        try:
+            with open(mtl_filename) as file:
+                for line in file:
+                    if line.startswith("newmtl"):
+                        material_name = ''.join(line.split('newmtl ', 1)).replace('\n', "")
+                        mtl_values = list()
+                        rgb_values = next(file)
+                        rgb_values = ''.join(rgb_values[2:]).replace('\n', "").split()
+                        for value in rgb_values:
+                            mtl_values.append(float(value)*255)
+                        self.mtls[material_name] = mtl_values
+
+        except Exception as e:
+            return e
+
+    def exportObj(self, obj: TwoDObj):
+        pass

@@ -116,11 +116,9 @@ class World:
         transformMenu.desloc_y.setText(str(-dy))
         self._translate(transformMenu)
         # ROTAÇÃO ACONTECE AQUI
-        sin = numpy.sin(angle * numpy.pi / 180)
-        # sin = numpy.sin(angle)
-        cos = numpy.cos(angle * numpy.pi / 180)
-        # cos = numpy.cos(angle)
-        rotate_mat = numpy.array([[cos, (-1)*sin, 0],
+        sin = numpy.sin(numpy.radians(angle))
+        cos = numpy.cos(numpy.radians(angle))
+        rotate_mat = numpy.array([[cos, -sin, 0],
                                   [sin, cos, 0],
                                   [0, 0, 1]])
         transformMenu.trans_matrix = numpy.matmul(transformMenu.trans_matrix, rotate_mat)

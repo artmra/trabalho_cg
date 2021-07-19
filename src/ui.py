@@ -1,8 +1,9 @@
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QComboBox, QGroupBox, QMainWindow, QLabel, \
-    QMessageBox
+    QMessageBox, QAction, QFileDialog
 
 from createMenus import CreatePointMenu, CreateLineMenu, CreateWireframeMenu, CreateTransformMenu
+from objs import DescritorOBJ
 from world import World
 from viewport import Viewport
 
@@ -13,8 +14,20 @@ class Ui(QMainWindow):
         self.setFixedSize(1110, 810)
         self.setWindowTitle('T1 - Arthur M R Alves & Bryan M Lima')
         self.setWindowIcon(QIcon('uiIcon.png'))
+        self.objListView = QComboBox()
+        self.menubar = self.menuBar()
+        self.filemenu = self.menubar.addMenu('File')
+        self.createActionsMenuBar()
+        # import_action = QAction('Import File', self)
+        # export_action = QAction('Export objects to file', self)
+        # filemenu.addAction(import_action)
+        # filemenu.addAction(export_action)
         # world
         self.world = World()
+
+        # descritor = DescritorOBJ()
+        # descritor.importObj('objs/teste.obj')
+
         # viewport
         self.viewport = Viewport(self.world)
         self.viewport.setParent(self)
@@ -23,6 +36,37 @@ class Ui(QMainWindow):
         self.funcMenu = self.createFuncMenu()
         self.funcMenu.setParent(self)
         self.funcMenu.move(5, 5)
+
+    def createActionsMenuBar(self):
+        # Import action
+        importAction = QAction("Import", self)
+        # TODO connect with fileopen action
+        importAction.triggered.connect(self.importDialog)
+        self.filemenu.addAction(importAction)
+        # Export action
+        exportAction = QAction("Export", self)
+        exportAction.triggered.connect(self.exportDialog)
+        self.filemenu.addAction(exportAction)
+
+    def importDialog(self):
+        filename, _ = QFileDialog.getOpenFileName(self, "Import File", "", "Obj Files (*.obj)")
+        if filename:
+            descritor = DescritorOBJ()
+            error = descritor.importObj(filename)
+            if error:
+                msg = QMessageBox()
+                msg.setWindowTitle('Erro ao importar o arquivo!')
+                msg.setText(f'O seguinte erro ocorreu durante a leitura do arquivo:\n{error}')
+                msg.exec_()
+            if descritor.list_objs:
+                for obj in descritor.list_objs:
+                    self.viewport.addObj(obj)
+                    self.objListView.addItem(obj.name)
+
+    def exportDialog(self):
+        fileName, _ = QFileDialog.getSaveFileName(self, "Export File", "objects.obj", "Obj Files (*.obj)")
+        if fileName:
+            print(fileName)
 
     # função responsável por criar o menu que contém as funcionalidades da aplicação
     def createFuncMenu(self) -> QGroupBox:
@@ -100,7 +144,6 @@ class Ui(QMainWindow):
         objsMenu = QGroupBox('Objetos')
         objsMenu.setFixedSize(250, 200)
         layout = QGridLayout()
-        self.objListView = QComboBox()
         layout.addWidget(self.objListView, 0, 0)
         # botao adicionar ponto
         addPointButton = QPushButton('Ponto')

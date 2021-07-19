@@ -3,7 +3,7 @@ import numpy
 
 from objs import TwoDObj, Line, Wireframe, Point
 # from createMenus import CreateTransformMenu
-from src.viewport import Viewport
+from viewport import Viewport
 from window import Window
 
 

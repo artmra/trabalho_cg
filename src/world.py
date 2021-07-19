@@ -65,12 +65,12 @@ class World:
                                  [0, scale_y, 0],
                                  [0, 0, 1]])
         transformMenu.trans_matrix = numpy.matmul(transformMenu.trans_matrix, scale_mat)
+        transformMenu.logger.appendPlainText(f"-> ESCALONAMENTO  Eixo X: {scale_x}    Eixo Y: {scale_y}\n")
 
         transformMenu.desloc_x.setText(str(cx))
         transformMenu.desloc_y.setText(str(cy))
         self._translate(transformMenu)
 
-        transformMenu.logger.appendPlainText(f"-> ESCALONAMENTO  Eixo X: {scale_x}    Eixo Y: {scale_y}\n")
 
     # rotaciona um obj em relacao ao mundo
     def click_rotate_world(self, transformMenu, current_obj_name: str):
@@ -117,8 +117,8 @@ class World:
         transformMenu.desloc_y.setText(str(-dy))
         self._translate(transformMenu)
         # ROTAÇÃO ACONTECE AQUI
-        sin = numpy.sin(angle * numpy.pi / 180)
-        cos = numpy.cos(angle * numpy.pi / 180)
+        sin = numpy.sin(numpy.radians(angle))
+        cos = numpy.cos(numpy.radians(angle))
         rotate_mat = numpy.array([[cos, -sin, 0],
                                   [sin, cos, 0],
                                   [0, 0, 1]])

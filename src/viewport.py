@@ -1,4 +1,4 @@
-from PyQt5.QtGui import QPen, QPainter, QPalette
+from PyQt5.QtGui import QPen, QPainter, QPalette, QColor
 from PyQt5.QtWidgets import QMessageBox, QWidget
 from PyQt5.QtCore import Qt
 
@@ -6,8 +6,6 @@ from objs import Line, Point, Wireframe, TwoDObj, TwoDObjType
 
 
 # Classe que implementa uma viewport para a aplicação
-
-
 class Viewport(QWidget):
 
     def __init__(self, world):
@@ -31,18 +29,17 @@ class Viewport(QWidget):
 
     def viewportTransform(self, xw, yw) -> (float, float):
         # aplicar a matriz scn da window as coordenadas do mundo
-        xw, yw = self.window_.applySCNMatrixToPoint(xw, yw)
+        xw, yw = self.window_.applySCN(xw, yw)
         # realiza a transformada de viewport
         xwmin, ywmin, xwmax, ywmax = self.window_.getCoords()
         # # aplica a matriz scn ao x/yw min/max
-        xwmin, ywmin = self.window_.applySCNMatrixToPoint(xwmin, ywmin)
-        xwmax, ywmax = self.window_.applySCNMatrixToPoint(xwmax, ywmax)
+        xwmin, ywmin = self.window_.applySCN(xwmin, ywmin)
+        xwmax, ywmax = self.window_.applySCN(xwmax, ywmax)
         xvpmin, yvpmin, xvpmax, yvpmax = self.getViewportCoords()
-        return ((float(xw) - xwmin) / (xwmax - xwmin)) * (xvpmax - xvpmin), (
-                    1 - ((float(yw) - ywmin) / (ywmax - ywmin))) * (yvpmax - yvpmin)
+        return ((xw - xwmin) / (xwmax - xwmin)) * (xvpmax - xvpmin), (1 - ((yw - ywmin) / (ywmax - ywmin))) * (yvpmax - yvpmin)
 
     def paintEvent(self, event):
-        # self.drawExys()
+        self.drawExys()
         for obj in self.world.objs:
             if obj.twoDType.value == TwoDObjType.POINT.value:
                 self.drawPoint(obj)
@@ -52,26 +49,69 @@ class Viewport(QWidget):
                 self.drawWireframe(obj)
 
     def drawExys(self):
-        # todo: usar coords normalizadas
         p1 = QPainter()
         p2 = QPainter()
-        p1.begin(self)
-        p1.setPen(Qt.blue)
+        p3 = QPainter()
+        p4 = QPainter()
+        # # painter de 5~8 n sao necessários caso n queira imprimir pontos referentes a cada quadrante
+        # p5 = QPainter()
+        # p6 = QPainter()
+        # p7 = QPainter()
+        # p8 = QPainter()
         lenght, height = self.window_.getWindowDimensions()
-        x1, y1 = self.viewportTransform((-1) * lenght/2, 0)
-        x2, y2 = self.viewportTransform(lenght/2, 0)
-        p1.drawLine(x1, y1, x2, y2)
+        center_x, center_y = self.viewportTransform(0,0)
+        # coordenadas das retas
+        x1_eixo_x, y1_eixo_x = self.viewportTransform((-1) * lenght, 0)
+        x2_eixo_x, y2_eixo_x = self.viewportTransform(lenght, 0)
+        x1_eixo_y, y1_eixo_y = self.viewportTransform(0, (-1) * height)
+        x2_eixo_y, y2_eixo_y = self.viewportTransform(0, height)
+        # desenha linha de [0, lenght](direita) no eixo x - red
+        p1.begin(self)
+        p1.setPen(QColor(150, 0, 0, 127))
+        p1.drawLine(center_x, center_y, x2_eixo_x, y2_eixo_x)
         p1.end()
+        # desenha linha de [0, -lenght](esquerda) no eixo x - ciano
         p2.begin(self)
-        p2.setPen(Qt.red)
-        x1, y1 = self.viewportTransform(0, (-1) * height/2)
-        x2, y2 = self.viewportTransform(0, height/2)
-        p2.drawLine(x1, y1, x2, y2)
+        p2.setPen(QColor(0, 150, 150, 127))
+        p2.drawLine(center_x, center_y, x1_eixo_x, y1_eixo_x)
         p2.end()
-        # pass
+        # desenha linha de [0, height](cima) no eixo y - green
+        p3.begin(self)
+        p3.setPen(QColor(0, 150, 0, 127))
+        p3.drawLine(center_x, center_y, x2_eixo_y, y2_eixo_y)
+        p3.end()
+        # desenha linha de [0, -height](baixo) no eixo y - pinlk
+        p4.begin(self)
+        p4.setPen(QColor(150, 0, 150, 127))
+        p4.drawLine(center_x, center_y, x1_eixo_y, y1_eixo_y)
+        p4.end()
+        # # calculos apenas incluidos para pintar pontos em cada um dos quadrantes
+        # x1_eixo_x, _ = self.viewportTransform(-50, 0)
+        # x2_eixo_x, _ = self.viewportTransform(50, 0)
+        # _, y1_eixo_y = self.viewportTransform(0, -50)
+        # _, y2_eixo_y = self.viewportTransform(0, 50)
+        # # desenhar ponto primeiro quadrante - red
+        # p5.begin(self)
+        # p5.setPen(QPen(QColor(150, 0, 0, 127), 10, Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin))
+        # p5.drawPoint(x2_eixo_x, y2_eixo_y)
+        # p5.end()
+        # # desenhar ponto segundo quadrante - green
+        # p6.begin(self)
+        # p6.setPen(QPen(QColor(0, 150, 0, 127), 10, Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin))
+        # p6.drawPoint(x1_eixo_x, y2_eixo_y)
+        # p6.end()
+        # # desenhar ponto terceiro quadrante - blue
+        # p7.begin(self)
+        # p7.setPen(QPen(QColor(0, 150, 150, 127), 10, Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin))
+        # p7.drawPoint(x1_eixo_x, y1_eixo_y)
+        # p7.end()
+        # # desenhar ponto quarto quadrante - pink
+        # p8.begin(self)
+        # p8.setPen(QPen(QColor(150, 0, 150, 127), 10, Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin))
+        # p8.drawPoint(x2_eixo_x, y1_eixo_y)
+        # p8.end()
 
     def drawPoint(self, point: Point):
-        # todo: usar coords normalizadas
         p = QPainter()
         p.begin(self)
         p.setPen(QPen(point.getColor(), 5, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
@@ -80,7 +120,6 @@ class Viewport(QWidget):
         p.end()
 
     def drawLine(self, line: Line):
-        # todo: usar coords normalizadas
         p = QPainter()
         p.begin(self)
         p.setPen(QPen(line.getColor(), 3, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
@@ -92,7 +131,6 @@ class Viewport(QWidget):
         p.end()
 
     def drawWireframe(self, wireframe: Wireframe):
-        # todo: usar coords normalizadas
         p = QPainter()
         p.begin(self)
         p.setPen(QPen(wireframe.getColor(), 3, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))

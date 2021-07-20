@@ -1,10 +1,9 @@
 from enum import Enum
 
-# Enum para tipos de objs 2D
 from PyQt5.QtGui import QColor
-import os
 
 
+# Enum para tipos de objs 2D
 class TwoDObjType(Enum):
     POINT = 0
     LINE = 1

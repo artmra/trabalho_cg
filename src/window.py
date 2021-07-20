@@ -1,4 +1,6 @@
 import numpy
+from numpy import double
+
 
 class Window:
     def __init__(self, world, xyw_min=None, xyw_max=None):
@@ -31,8 +33,9 @@ class Window:
         # define o novo centro(var que pode ser utilizada em futuros calculos envolvendo o centro da window)
         self.newCenter = self.center
         self.fatorMovimento = 10
-        self.window_scn = numpy.array([])
+        self.window_scn = numpy.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         # inicializa scn da window
+        self.deegrees = 0
         self.scn()
 
     def calcCenter(self) -> tuple:
@@ -138,6 +141,7 @@ class Window:
 
     # rotaciona o obj em relacao a algum referencial
     def _rotate(self, angle=0):
+        self.deegrees = self.deegrees + angle
         # centro do obj
         cx, cy = self.newCenter
         # coords do mundo
@@ -148,7 +152,9 @@ class Window:
         # ajusta o centro do mundo com o obj
         translate_matrix_1 = numpy.array([[1, 0, 0], [0, 1, 0], [(-1)*cx, (-1)*cy, 1]])
         # realiza a rotacao
+        # print("Rodei :" + str(angle))
         radians = numpy.radians(angle)
+        print("Rodei :" + str(numpy.degrees(radians)))
         sin = numpy.sin(radians)
         cos = numpy.cos(radians)
         rotate_matrix = numpy.array([[cos, -sin, 0], [sin, cos, 0], [0, 0, 1]])
@@ -181,14 +187,17 @@ class Window:
         # ajusta o centro do mundo com o obj
         translate_matrix_1 = numpy.array([[1, 0, 0], [0, 1, 0], [(-1) * cx, (-1) * cy, 1]])
         # realiza a rotacao para alinhar o vup com o eixo y
-        aux = numpy.matmul(aux, translate_matrix_1)
-        vup = numpy.array([aux[0], aux[1]])
-        # normaliza vup
-        vup = vup / numpy.linalg.norm(vup)
-        # calcula o angulo
-        cos_angle = vup[1]/numpy.linalg.norm(vup)
-        radians = numpy.arccos(cos_angle)
-        sin = numpy.sin((-1)*radians)
+        # aux = numpy.matmul(aux, translate_matrix_1)
+        # vup = numpy.array([aux[0], aux[1]])
+        # # normaliza vup
+        # vup = vup / numpy.linalg.norm(vup)
+        # # calcula o angulo
+        # cos_angle = vup[1]/numpy.linalg.norm(vup)
+        # radians = numpy.arccos(cos_angle)
+        radians = numpy.radians((-1)*self.deegrees)
+        # print("VUP:" + str(vup[0]) + " ; " + str(vup[1]))
+        # print("Pra voltar preciso rodar:" + str(numpy.degrees(radians)))
+        sin = numpy.sin(radians)
         cos = numpy.cos(radians)
         rotate_matrix = numpy.array([[cos, -sin, 0], [sin, cos, 0], [0, 0, 1]])
         # https://stackoverflow.com/questions/1401712/how-can-the-euclidean-distance-be-calculated-with-numpy
@@ -198,8 +207,8 @@ class Window:
         # realiza o escalonamento(num sei se esse e o termo correto)
         scale_matrix = numpy.array([[sx, 0, 0], [0, sy, 0], [0, 0, 1]])
         # gera a matriz de transformacao de rotacao
-        self.window_scn = numpy.matmul(translate_matrix_1, rotate_matrix)
-        self.window_scn = numpy.matmul(self.window_scn, scale_matrix)
+        scn = numpy.matmul(translate_matrix_1, rotate_matrix)
+        self.window_scn = numpy.matmul(scn, scale_matrix)
 
     def applySCN(self, x, y):
         point_coords = numpy.array([x, y, 1])

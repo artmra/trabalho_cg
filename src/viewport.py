@@ -10,7 +10,10 @@ class Viewport(QWidget):
 
     def __init__(self, world):
         super().__init__()
-        self.setFixedSize(800, 800)
+        self.viewportLenght = 800
+        self.viewportHeight = 800
+        self.recuoViewport = 30
+        self.setFixedSize(self.viewportLenght, self.viewportHeight)
         self.world = world
         self.window_ = self.world.getWindow()
         pal = self.palette()
@@ -47,6 +50,7 @@ class Viewport(QWidget):
                 self.drawLine(obj)
             else:
                 self.drawWireframe(obj)
+        self.drawSubCanvas()
 
     def drawExys(self):
         p1 = QPainter()
@@ -110,6 +114,16 @@ class Viewport(QWidget):
         # p8.setPen(QPen(QColor(150, 0, 150, 127), 10, Qt.SolidLine, Qt.FlatCap, Qt.MiterJoin))
         # p8.drawPoint(x2_eixo_x, y1_eixo_y)
         # p8.end()
+
+    def drawSubCanvas(self):
+        p = QPainter()
+        p.begin(self)
+        p.setPen(QPen(Qt.white, 3, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
+        p.drawLine(self.recuoViewport, self.recuoViewport, self.recuoViewport, self.viewportLenght - self.recuoViewport)
+        p.drawLine(self.recuoViewport, self.viewportHeight - self.recuoViewport, self.viewportLenght - self.recuoViewport, self.viewportHeight - self.recuoViewport)
+        p.drawLine(self.viewportLenght - self.recuoViewport, self.viewportHeight - self.recuoViewport, self.viewportLenght - self.recuoViewport, self.recuoViewport)
+        p.drawLine(self.viewportLenght - self.recuoViewport, self.recuoViewport, self.recuoViewport, self.recuoViewport)
+        p.end()
 
     def drawPoint(self, point: Point):
         p = QPainter()

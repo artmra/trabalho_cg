@@ -66,7 +66,11 @@ class Ui(QMainWindow):
     def exportDialog(self):
         fileName, _ = QFileDialog.getSaveFileName(self, "Export File", "objects.obj", "Obj Files (*.obj)")
         if fileName:
-            print(fileName)
+            descritor = DescritorOBJ()
+            file_content = descritor.exportObj(self.world)
+            file = open(fileName, 'w')
+            file.write(file_content)
+            file.close()
 
     # função responsável por criar o menu que contém as funcionalidades da aplicação
     def createFuncMenu(self) -> QGroupBox:

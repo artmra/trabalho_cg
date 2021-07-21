@@ -71,7 +71,7 @@ class Viewport(QWidget):
         x2, y2 = self.viewportTransform(-lenght, 0)
         line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
         if line_coords != [0, 0, 0, 0]:
-            x1, x2, x3, x4 = line_coords
+            x1, y1, x2, y2 = line_coords
             p2.begin(self)
             p2.setPen(QPen(QColor(51, 0, 0, 255), 3))
             p2.drawLine(x1, y1, x2, y2)
@@ -107,14 +107,13 @@ class Viewport(QWidget):
 
     def drawPoint(self, point: Point):
         p = QPainter()
-        p.begin(self)
-        p.setPen(QPen(point.getColor(), 5, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
-        # aplica o sistema de coordenadas normalizadas
-        # todo: deve checar se ponto está dentro da window
-        x, y = self.window_.applySCN(point.getX(), point.getY())
-        x, y = self.viewportTransform(x, y)
-        p.drawPoint(x, y)
-        p.end()
+        x, y = self.viewportTransform(point.getX(), point.getY())
+        xesq, ytopo, xdir, yfundo = self.getViewportCoords()
+        if xesq < x < xdir and yfundo > y > ytopo:
+            p.begin(self)
+            p.setPen(QPen(point.getColor(), 5, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
+            p.drawPoint(x, y)
+            p.end()
 
     def drawLine(self, line: Line):
         p = QPainter()
@@ -125,7 +124,7 @@ class Viewport(QWidget):
         line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
         if line_coords == [0, 0, 0, 0]:
             return
-        x1, x2, x3, x4 = line_coords
+        x1, y1, x2, y2 = line_coords
         p.begin(self)
         p.setPen(QPen(line.getColor(), 3, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
         p.drawLine(x1, y1, x2, y2)
@@ -213,10 +212,6 @@ class Viewport(QWidget):
     # calcula o RC de um ponto qualquer
     def calcRC(self, x: float, y: float,
                xwesq: float, ywtopo: float, xwdir: float, ywfundo: float) -> [int, int, int, int]:
-        x1 = 1 if y < ywtopo else 0
-        x2 = 1 if y > ywfundo else 0
-        x3 = 1 if x > xwdir else 0
-        x4 = 1 if x < xwesq else 0
         return [1 if y < ywtopo else 0, # viewport tem eixo y invertido
                 1 if y > ywfundo else 0, # viewport tem eixo y invertido
                 1 if x > xwdir else 0,

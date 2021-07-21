@@ -1,6 +1,6 @@
-from PyQt5.QtGui import QPen, QPainter, QPalette, QColor
+from PyQt5.QtGui import QPen, QPainter, QPalette, QColor, QPolygon, QBrush
 from PyQt5.QtWidgets import QMessageBox, QWidget
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QPoint
 
 from objs import Line, Point, Wireframe, TwoDObj, TwoDObjType
 
@@ -14,7 +14,7 @@ class Viewport(QWidget):
         self.world = world
         self.window_ = self.world.getWindow()
         pal = self.palette()
-        pal.setColor(QPalette.Background, Qt.black)
+        pal.setColor(QPalette.Background, QColor(30, 30, 30))
         self.setAutoFillBackground(True)
         self.setPalette(pal)
         self.dotPen = QPen(Qt.red, 5, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin)
@@ -67,22 +67,22 @@ class Viewport(QWidget):
         x2_eixo_y, y2_eixo_y = self.viewportTransform(0, height)
         # desenha linha de [0, lenght](direita) no eixo x - vermelho "claro"
         p1.begin(self)
-        p1.setPen(QPen(QColor(150, 0, 0, 255), 3))
+        p1.setPen(QPen(QColor(150, 0, 0, 255), 4))
         p1.drawLine(center_x, center_y, x2_eixo_x, y2_eixo_x)
         p1.end()
         # desenha linha de [0, -lenght](esquerda) no eixo x - vermelho "escuro"
         p2.begin(self)
-        p2.setPen(QPen(QColor(51, 0, 0, 255), 2))
+        p2.setPen(QPen(QColor(51, 0, 0, 255), 3))
         p2.drawLine(center_x, center_y, x1_eixo_x, y1_eixo_x)
         p2.end()
         # desenha linha de [0, height](cima) no eixo y - azul "claro"
         p3.begin(self)
-        p3.setPen(QPen(QColor(0, 0, 150, 255), 3))
+        p3.setPen(QPen(QColor(0, 0, 150, 255), 4))
         p3.drawLine(center_x, center_y, x2_eixo_y, y2_eixo_y)
         p3.end()
         # desenha linha de [0, -height](baixo) no eixo y - azul "escuro"
         p4.begin(self)
-        p4.setPen(QPen(QColor(0, 0, 51, 255), 2))
+        p4.setPen(QPen(QColor(0, 0, 51, 255), 3))
         p4.drawLine(center_x, center_y, x1_eixo_y, y1_eixo_y)
         p4.end()
         # # calculos apenas incluidos para pintar pontos em cada um dos quadrantes para fins de cálculo
@@ -132,18 +132,26 @@ class Viewport(QWidget):
 
     def drawWireframe(self, wireframe: Wireframe):
         p = QPainter()
+        p_ = QPainter()
         p.begin(self)
         p.setPen(QPen(wireframe.getColor(), 3, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
         x1, y1 = wireframe.coords[0]
         x1, y1 = self.viewportTransform(x1, y1)
         x0, y0 = x1, y1
+        poly_points = [QPoint(x1, y1)]
         for i in range(1, len(wireframe.coords)):
             x2, y2 = wireframe.coords[i]
             x2, y2 = self.viewportTransform(x2, y2)
+            poly_points.append(QPoint(x2, y2))
             p.drawLine(x1, y1, x2, y2)
             x1, y1 = x2, y2
         p.drawLine(x1, y1, x0, y0)
         p.end()
+        # preenche o poligono. Talvez tenha q mudar se não der para fazer isso.
+        p_.begin(self)
+        p_.setBrush(QBrush(wireframe.getColor()))
+        p_.drawPolygon(QPolygon(poly_points))
+        p_.end()
 
     def zoomIn(self):
         self.window_.zoomIn()

@@ -16,7 +16,7 @@ class TwoDObj:
         self.name = str(name)
         self.twoDType = TwoDObjType(twoDType)
         self.coords = list()
-        self.color = QColor(int(color[0]), int(color[1]), int(color[2]), 127)
+        self.color = QColor(int(color[0]), int(color[1]), int(color[2]), 100)
 
     def __eq__(self, other):
         # no contexto desse trabalho todos os objetos devem ter nomes diferentes, e caso sejam de tipos iguais n podem
@@ -105,7 +105,7 @@ class Line(TwoDObj):
 
 # Classe que representa um polígono
 class Wireframe(TwoDObj):
-    def __init__(self, name, coords=[(0, 0), (1, 1), (0, 2)], color=(0, 0, 255)):
+    def __init__(self, name, coords=[(0, 0), (1, 1), (0, 2)], color=(204, 0, 204)):
         super().__init__(name, 2, color)
         for x_y in coords:
             if not isinstance(x_y, tuple) or len(x_y) != 2:

@@ -71,7 +71,6 @@ class World:
         transformMenu.desloc_y.setText(str(cy))
         self._translate(transformMenu)
 
-
     # rotaciona um obj em relacao ao mundo
     def click_rotate_world(self, transformMenu, current_obj_name: str):
         self._rotate(around=1, transformMenu=transformMenu, current_obj_name=current_obj_name)
@@ -86,7 +85,6 @@ class World:
 
     # rotaciona o obj em relacao a algum referencial
     def _rotate(self, around: int, transformMenu, current_obj_name: str):
-        # current_obj_name = self.objListView.currentText()
         obj = self.getObj(current_obj_name)
         dx = 0
         dy = 0

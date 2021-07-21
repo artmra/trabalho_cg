@@ -1,5 +1,4 @@
 import numpy
-from numpy import double
 
 
 class Window:
@@ -7,8 +6,8 @@ class Window:
         self.world = world
         # caso em q é None
         if xyw_min is None or xyw_max is None:
-            self.xyw_min = (-400, -400)
-            self.xyw_max = (400, 400)
+            self.xyw_min = (-100, -100)
+            self.xyw_max = (100, 100)
         # caso em q n é None
         else:
             if not isinstance(xyw_min, tuple) or len(xyw_min) != 2:
@@ -35,7 +34,7 @@ class Window:
         self.fatorMovimento = 10
         self.window_scn = numpy.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
         # inicializa scn da window
-        self.deegrees = 0
+        self.degrees = 0
         self.scn()
 
     def calcCenter(self) -> tuple:
@@ -51,24 +50,40 @@ class Window:
         return numpy.linalg.norm(xyw2 - xyw1), numpy.linalg.norm(xyw3 - xyw1)
 
     def moveUp(self):
-        # todo: se grau de inclinação da window for maior que 180, inverter sinal do param
-        # todo: se grau estiver na faixa [60, 120] ou [210, 330] o eixo movimentado deve ser trocado
-        self._translate(dy=self.fatorMovimento)
+        # se grau de inclinação da window for maior que 180, inverter sinal do param
+        invert = -1 if self.degrees > 180 else 1
+        # se grau estiver na faixa [60, 120] ou [210, 330] o eixo movimentado deve ser trocado
+        if (60 < self.degrees < 180) or (210 < self.degrees < 330):
+            self._translate(dx=invert * self.fatorMovimento)
+        else:
+            self._translate(dy=invert * self.fatorMovimento)
 
     def moveDown(self):
-        # todo: se grau de inclinação da window for maior que 180, inverter sinal do param
-        # todo: se grau estiver na faixa [60, 120] ou [210, 330] o eixo movimentado deve ser trocado
-        self._translate(dy=(-1)*self.fatorMovimento)
+        # se grau de inclinação da window for maior que 180, inverter sinal do param
+        invert = -1 if self.degrees > 180 else 1
+        # se grau estiver na faixa [60, 120] ou [210, 330] o eixo movimentado deve ser trocado
+        if (60 < self.degrees < 180) or (210 < self.degrees < 330):
+            self._translate(dx=invert * (-1) * self.fatorMovimento)
+        else:
+            self._translate(dy=invert * (-1) * self.fatorMovimento)
 
     def moveRight(self):
-        # todo: se grau de inclinação da window for maior que 180, inverter sinal do param
-        # todo: se grau estiver na faixa [60, 120] ou [210, 330] o eixo movimentado deve ser trocado
-        self._translate(dx=self.fatorMovimento)
+        # se grau de inclinação da window for maior que 180, inverter sinal do param
+        invert = -1 if self.degrees > 180 else 1
+        # se grau estiver na faixa [60, 120] ou [210, 330] o eixo movimentado deve ser trocado
+        if (60 < self.degrees < 180) or (210 < self.degrees < 330):
+            self._translate(dy=invert * self.fatorMovimento)
+        else:
+            self._translate(dx=invert * self.fatorMovimento)
 
     def moveLeft(self):
-        # todo: se grau de inclinação da window for maior que 180, inverter sinal do param
-        # todo: se grau estiver na faixa [60, 120] ou [210, 330] o eixo movimentado deve ser trocado
-        self._translate(dx=(-1)*self.fatorMovimento)
+        # se grau de inclinação da window for maior que 180, inverter sinal do param
+        invert = -1 if self.degrees > 180 else 1
+        # se grau estiver na faixa [60, 120] ou [210, 330] o eixo movimentado deve ser trocado
+        if (60 < self.degrees < 180) or (210 < self.degrees < 330):
+            self._translate(dy=invert * (-1) * self.fatorMovimento)
+        else:
+            self._translate(dx=invert * (-1) * self.fatorMovimento)
 
     def _translate(self, dx=0, dy=0):
         # cria a matriz de translacao do obj para um dx e dy qualquer
@@ -86,10 +101,10 @@ class Window:
         self.xyw_4 = (xyw_4[0], xyw_4[1])
         self.xyw_min = self.xyw_1
         self.xyw_max = self.xyw_4
-        # atualiza scn
-        self.scn()
         # atualiza o centro
         self.newCenter = self.calcCenter()
+        # atualiza scn
+        self.scn()
 
     def zoomIn(self):
         self._scale(scale=0.9)
@@ -126,14 +141,15 @@ class Window:
         self.xyw_4 = (xyw_4[0], xyw_4[1])
         self.xyw_min = self.xyw_1
         self.xyw_max = self.xyw_4
-        # atualiza scn
-        self.scn()
         # atualiza o centro
         self.newCenter = self.calcCenter()
+        # atualiza scn
+        self.scn()
 
     # rotacionar no sentido horario
     def rotateRight(self):
-        self._rotate(-10)
+        # 360 - 10 = 350
+        self._rotate(350)
 
     # rotacionar no sentido anti-horario
     def rotateLeft(self):
@@ -141,7 +157,7 @@ class Window:
 
     # rotaciona o obj em relacao a algum referencial
     def _rotate(self, angle=0):
-        self.deegrees = self.deegrees + angle
+        self.degrees = (self.degrees + angle) % 360
         # centro do obj
         cx, cy = self.newCenter
         # coords do mundo
@@ -152,9 +168,7 @@ class Window:
         # ajusta o centro do mundo com o obj
         translate_matrix_1 = numpy.array([[1, 0, 0], [0, 1, 0], [(-1)*cx, (-1)*cy, 1]])
         # realiza a rotacao
-        # print("Rodei :" + str(angle))
         radians = numpy.radians(angle)
-        print("Rodei :" + str(numpy.degrees(radians)))
         sin = numpy.sin(radians)
         cos = numpy.cos(radians)
         rotate_matrix = numpy.array([[cos, -sin, 0], [sin, cos, 0], [0, 0, 1]])
@@ -172,41 +186,28 @@ class Window:
         self.xyw_4 = (xyw_4[0], xyw_4[1])
         self.xyw_min = self.xyw_1
         self.xyw_max = self.xyw_4
-        # atualiza scn
-        self.scn()
         # atualiza o centro
         self.newCenter = self.calcCenter()
+        # atualiza scn
+        self.scn()
 
     def scn(self):
         # centro do obj
         cx, cy = self.newCenter
-        xyw3 = numpy.array([self.xyw_3[0], self.xyw_3[1]])
-        xyw4 = numpy.array([self.xyw_4[0], self.xyw_4[1]])
-        # coords do ponto medio superior da window, q sera usado pra definir o vup okay
-        aux = numpy.array([(xyw3[0] + xyw4[0])/2, (xyw3[1] + xyw4[1])/2, 1])
         # ajusta o centro do mundo com o obj
         translate_matrix_1 = numpy.array([[1, 0, 0], [0, 1, 0], [(-1) * cx, (-1) * cy, 1]])
-        # realiza a rotacao para alinhar o vup com o eixo y
-        # aux = numpy.matmul(aux, translate_matrix_1)
-        # vup = numpy.array([aux[0], aux[1]])
-        # # normaliza vup
-        # vup = vup / numpy.linalg.norm(vup)
-        # # calcula o angulo
-        # cos_angle = vup[1]/numpy.linalg.norm(vup)
-        # radians = numpy.arccos(cos_angle)
-        radians = numpy.radians((-1)*self.deegrees)
-        # print("VUP:" + str(vup[0]) + " ; " + str(vup[1]))
-        # print("Pra voltar preciso rodar:" + str(numpy.degrees(radians)))
+        # pega ao INVERSO da rotacao atual da window
+        radians = numpy.radians((-1)*self.degrees)
         sin = numpy.sin(radians)
         cos = numpy.cos(radians)
+        # rotaciona
         rotate_matrix = numpy.array([[cos, -sin, 0], [sin, cos, 0], [0, 0, 1]])
-        # https://stackoverflow.com/questions/1401712/how-can-the-euclidean-distance-be-calculated-with-numpy
         length, height = self.getWindowDimensions()
         sx = 1 / (length / 2)
         sy = 1 / (height / 2)
         # realiza o escalonamento(num sei se esse e o termo correto)
         scale_matrix = numpy.array([[sx, 0, 0], [0, sy, 0], [0, 0, 1]])
-        # gera a matriz de transformacao de rotacao
+        # gera a matriz de conversao para scn da window
         scn = numpy.matmul(translate_matrix_1, rotate_matrix)
         self.window_scn = numpy.matmul(scn, scale_matrix)
 

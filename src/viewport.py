@@ -65,27 +65,27 @@ class Viewport(QWidget):
         x2_eixo_x, y2_eixo_x = self.viewportTransform(lenght, 0)
         x1_eixo_y, y1_eixo_y = self.viewportTransform(0, (-1) * height)
         x2_eixo_y, y2_eixo_y = self.viewportTransform(0, height)
-        # desenha linha de [0, lenght](direita) no eixo x - red
+        # desenha linha de [0, lenght](direita) no eixo x - vermelho "claro"
         p1.begin(self)
-        p1.setPen(QColor(150, 0, 0, 127))
+        p1.setPen(QPen(QColor(150, 0, 0, 255), 3))
         p1.drawLine(center_x, center_y, x2_eixo_x, y2_eixo_x)
         p1.end()
-        # desenha linha de [0, -lenght](esquerda) no eixo x - ciano
+        # desenha linha de [0, -lenght](esquerda) no eixo x - vermelho "escuro"
         p2.begin(self)
-        p2.setPen(QColor(0, 150, 150, 127))
+        p2.setPen(QPen(QColor(51, 0, 0, 255), 2))
         p2.drawLine(center_x, center_y, x1_eixo_x, y1_eixo_x)
         p2.end()
-        # desenha linha de [0, height](cima) no eixo y - green
+        # desenha linha de [0, height](cima) no eixo y - azul "claro"
         p3.begin(self)
-        p3.setPen(QColor(0, 150, 0, 127))
+        p3.setPen(QPen(QColor(0, 0, 150, 255), 3))
         p3.drawLine(center_x, center_y, x2_eixo_y, y2_eixo_y)
         p3.end()
-        # desenha linha de [0, -height](baixo) no eixo y - pinlk
+        # desenha linha de [0, -height](baixo) no eixo y - azul "escuro"
         p4.begin(self)
-        p4.setPen(QColor(150, 0, 150, 127))
+        p4.setPen(QPen(QColor(0, 0, 51, 255), 2))
         p4.drawLine(center_x, center_y, x1_eixo_y, y1_eixo_y)
         p4.end()
-        # # calculos apenas incluidos para pintar pontos em cada um dos quadrantes
+        # # calculos apenas incluidos para pintar pontos em cada um dos quadrantes para fins de cálculo
         # x1_eixo_x, _ = self.viewportTransform(-50, 0)
         # x2_eixo_x, _ = self.viewportTransform(50, 0)
         # _, y1_eixo_y = self.viewportTransform(0, -50)

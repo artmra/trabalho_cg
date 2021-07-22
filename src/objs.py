@@ -1,9 +1,10 @@
 from enum import Enum
-
 from PyQt5.QtGui import QColor
 
 
 # Enum para tipos de objs 2D
+
+
 class TwoDObjType(Enum):
     POINT = 0
     LINE = 1
@@ -28,9 +29,14 @@ class TwoDObj:
     def __hash__(self):
         # implementada para permitir usar objs 2d como keys em dicts
         return hash((self.name, self.twoDType.value))
+
     # TODO 3D set coord of z axis
     def objString(self):
-        return f'v {self.coords.pop(0)} {self.coords.pop(1)} 0.0'
+        obj_string = list()
+        for coord in self.coords:
+            v_string = f'v {coord[0]} {coord[1]} 0.0'
+            obj_string.append(v_string)
+        return obj_string
 
     def getName(self) -> str:
         return self.name
@@ -193,5 +199,21 @@ class DescritorOBJ:
         except Exception as e:
             return e
 
-    def exportObj(self, obj: TwoDObj):
-        pass
+    def exportObj(self, world):
+        vector_string = ""
+        objs = ""
+
+        for obj in world.objs:
+            points = ""
+            for coord in obj.objString():
+                vector_string += coord + '\n'
+                points += f' {self.count}'
+                self.count += 1
+
+            objs += f"o {obj.getName()}\n"
+            if obj.getType == 0:
+                objs += "p" + points + "\n"
+            else:
+                objs += "l" + points + "\n"
+
+        return vector_string + objs

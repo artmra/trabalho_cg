@@ -247,8 +247,8 @@ class CreateTransformMenu(CreateMenu):
         tab_layout.addWidget(tabs)
 
         # liga funcoes de transformacao aos seus botoes
-        self.translate_save_button.clicked.connect(lambda: self.viewport.world._translate(transformMenu=self)) # ok
-        self.scale_save_button.clicked.connect(lambda: self.viewport.world._scale(transformMenu=self, current_obj_name=self.objListView.currentText())) # ok
+        self.translate_save_button.clicked.connect(lambda: self.viewport.world._translate(transformMenu=self))
+        self.scale_save_button.clicked.connect(lambda: self.viewport.world._scale(transformMenu=self, current_obj_name=self.objListView.currentText()))
         self.save_point_button.clicked.connect(lambda: self.viewport.world.click_rotate_point(transformMenu=self, current_obj_name=self.objListView.currentText()))
         self.save_world_center_button.clicked.connect(lambda: self.viewport.world.click_rotate_world(transformMenu=self, current_obj_name=self.objListView.currentText()))
         self.save_obj_center_button.clicked.connect(lambda: self.viewport.world.click_rotate_obj(transformMenu=self, current_obj_name=self.objListView.currentText()))

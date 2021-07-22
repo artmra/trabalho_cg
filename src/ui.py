@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QComboBox, QGroupBox, QMainWindow, QLabel, \
-    QMessageBox, QAction, QFileDialog
+    QMessageBox, QAction, QFileDialog, QRadioButton
 
 from createMenus import CreatePointMenu, CreateLineMenu, CreateWireframeMenu, CreateTransformMenu
 from objs import DescritorOBJ
@@ -85,9 +85,9 @@ class Ui(QMainWindow):
     # função responsável por criar o menu que contém as funcionalidades de movimentação da window
     def createMovementMenu(self) -> QGroupBox:
         movMenu = QGroupBox('Window')
-        movMenu.setFixedSize(250, 200)
+        movMenu.setFixedSize(250, 300)
         layout = QGridLayout()
-        layout.addWidget(QLabel('Movimentação'), 0, 0, 1, 3)
+        layout.addWidget(QLabel('Movimentação:'), 0, 0, 1, 3)
         upButton = QPushButton()
         upButton.setIcon(QIcon(QPixmap('up.svg')))
         upButton.clicked.connect(self.clickMoveUp)
@@ -104,7 +104,7 @@ class Ui(QMainWindow):
         downButton.setIcon(QIcon(QPixmap('down.svg')))
         downButton.clicked.connect(self.clickMoveDown)
         layout.addWidget(downButton, 3, 1, 1, 2)
-        layout.addWidget(QLabel('Zoom'), 4, 0, 1, 3)
+        layout.addWidget(QLabel('Zoom:'), 4, 0, 1, 3)
         zoomInButton = QPushButton()
         zoomInButton.setIcon(QIcon(QPixmap('zoomin.svg')))
         zoomInButton.clicked.connect(self.clickZoomIn)
@@ -113,15 +113,35 @@ class Ui(QMainWindow):
         zoomOutButton.setIcon(QIcon(QPixmap('zoomout.svg')))
         zoomOutButton.clicked.connect(self.clickZoomOut)
         layout.addWidget(zoomOutButton, 5, 2, 1, 2)
-        rotateRightButton = QPushButton('horario')
+        layout.addWidget(QLabel('Rotação: '), 6, 0, 1, 3)
+        rotateRightButton = QPushButton()
+        rotateRightButton.setIcon(QIcon(QPixmap('rotate-right.svg')))
         rotateRightButton.clicked.connect(self.clickRotateRight)
-        layout.addWidget(rotateRightButton, 6, 2, 1, 2)
-        rotateLefttButton = QPushButton('anti-horario')
+        layout.addWidget(rotateRightButton, 7, 2, 1, 2)
+        rotateLefttButton = QPushButton()
+        rotateLefttButton.setIcon(QIcon(QPixmap('rotate-left.svg')))
         rotateLefttButton.clicked.connect(self.clickRotateLeft)
-        layout.addWidget(rotateLefttButton, 6, 0, 1, 2)
+        layout.addWidget(rotateLefttButton, 7, 0, 1, 2)
+        layout.addWidget(QLabel('Cliping: '), 8, 0, 1, 3)
+        layout.addWidget(QLabel('CohenSutherland'), 9, 0, 1, 3)
+        cliping_1 = QRadioButton()
+        cliping_1.clicked.connect(lambda: self.setWindowCliping(opt=1))
+        layout.addWidget(cliping_1, 9, 3)
+        layout.addWidget(QLabel('Outro alg'), 10, 0, 1, 3)
+        cliping_1 = QRadioButton()
+        cliping_1.clicked.connect(lambda: self.setWindowCliping(opt=1))
+        layout.addWidget(cliping_1, 10, 3)
 
         movMenu.setLayout(layout)
         return movMenu
+
+    # determina o alg de cliping q deve ser usado
+    def setWindowCliping(self, opt=0):
+        if self.viewport.clipingAlg == opt:
+            self.viewport.clipingAlg = 0
+        else:
+            self.viewport.clipingAlg = opt
+        self.viewport.update()
 
     # função responsável por criar o menu de zoom in/out
     def createZoomMenu(self) -> QGroupBox:

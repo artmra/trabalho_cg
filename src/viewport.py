@@ -371,15 +371,13 @@ class Viewport(QWidget):
         x, y = point
         x_1, y_1 = pontosTopo[0]
         x_2, _ = pontosTopo[len(pontosTopo) - 1]
-        #esta no topo
+        # esta no topo
         if y == y_1 and x_1 < x < x_2:
             for i in range(len(pontosTopo)):
                 x_, _ = pontosTopo[i]
                 if x < x_:
                     # elemento deve estar na lista de pontos do topo, na posicao i
                     return 1, i
-                if x == x_:
-                    return 0, 0
 
         x_1, y_1 = pontosDireita[0]
         _, y_2 = pontosDireita[len(pontosDireita) - 1]
@@ -390,8 +388,6 @@ class Viewport(QWidget):
                 if y < y_:
                     # elemento deve estar na lista de pontos do topo, na posicao i
                     return 2, i
-                if y == y_:
-                    return 0, 0
 
         x_1, y_1 = pontosFundo[0]
         x_2, _ = pontosFundo[len(pontosFundo) - 1]
@@ -402,8 +398,6 @@ class Viewport(QWidget):
                 if x > x_:
                     # elemento deve estar na lista de pontos do topo, na posicao i
                     return 3, i
-                if x == x_:
-                    return 0, 0
 
         # esta na esquerda
         for i in range(len(pontosEsquerda)):
@@ -411,12 +405,10 @@ class Viewport(QWidget):
             if y > y_:
                 # elemento deve estar na lista de pontos da esquerda, na posicao i
                 return 4, i
-            if y == y_:
-                return 0, 0
 
-    # https: // www.geeksforgeeks.org / weiler - atherton - polygon - clipping - algorithm /
+    # Algoritmo de clipping de poligonos de Weiler Atherton. Retorna None caso nenhuma parte seja visivel; se houverem
+    # partes visiveis elas sao retornadas em uma lista de subpoligonos.
     def clippingWeilerAtherton(self, wire_coords: list) -> list:
-        # (0, 10), (90, 180), (180, 10)
         xvpesq, yvptopo, xvpdir, yvpfundo = self.getViewportCoords()
         # dic com os RC codes de cada ponto do poligono
         RC = {point: self.calcRC(point[0], point[1], xvpesq, yvptopo, xvpdir, yvpfundo) for point in wire_coords}

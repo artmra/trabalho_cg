@@ -89,63 +89,74 @@ class Ui(QMainWindow):
     # função responsável por criar o menu que contém as funcionalidades de movimentação da window
     def createMovementMenu(self) -> QGroupBox:
         movMenu = QGroupBox('Window')
-        movMenu.setFixedSize(250, 300)
+        movMenu.setFixedSize(250, 350)
         layout = QGridLayout()
         layout.addWidget(QLabel('Movimentação:'), 0, 0, 1, 3)
         upButton = QPushButton()
         upButton.setIcon(QIcon(QPixmap('up.svg')))
+        upButton.setFlat(True)
         upButton.clicked.connect(self.clickMoveUp)
         layout.addWidget(upButton, 1, 1, 1, 2)
         leftButton = QPushButton()
         leftButton.setIcon(QIcon(QPixmap('left.svg')))
+        leftButton.setFlat(True)
         leftButton.clicked.connect(self.clickMoveLeft)
         layout.addWidget(leftButton, 2, 0, 1, 2)
         rightButton = QPushButton()
         rightButton.setIcon(QIcon(QPixmap('right.svg')))
+        rightButton.setFlat(True)
         rightButton.clicked.connect(self.clickMoveRight)
         layout.addWidget(rightButton, 2, 2, 1, 2)
         downButton = QPushButton()
         downButton.setIcon(QIcon(QPixmap('down.svg')))
+        downButton.setFlat(True)
         downButton.clicked.connect(self.clickMoveDown)
         layout.addWidget(downButton, 3, 1, 1, 2)
         layout.addWidget(QLabel('Zoom:'), 4, 0, 1, 3)
         zoomInButton = QPushButton()
         zoomInButton.setIcon(QIcon(QPixmap('zoomin.svg')))
+        zoomInButton.setFlat(True)
         zoomInButton.clicked.connect(self.clickZoomIn)
         layout.addWidget(zoomInButton, 5, 0, 1, 2)
         zoomOutButton = QPushButton()
         zoomOutButton.setIcon(QIcon(QPixmap('zoomout.svg')))
+        zoomOutButton.setFlat(True)
         zoomOutButton.clicked.connect(self.clickZoomOut)
         layout.addWidget(zoomOutButton, 5, 2, 1, 2)
         layout.addWidget(QLabel('Rotação: '), 6, 0, 1, 3)
         rotateRightButton = QPushButton()
         rotateRightButton.setIcon(QIcon(QPixmap('rotate-right.svg')))
+        rotateRightButton.setFlat(True)
         rotateRightButton.clicked.connect(self.clickRotateRight)
         layout.addWidget(rotateRightButton, 7, 2, 1, 2)
         rotateLefttButton = QPushButton()
         rotateLefttButton.setIcon(QIcon(QPixmap('rotate-left.svg')))
+        rotateLefttButton.setFlat(True)
         rotateLefttButton.clicked.connect(self.clickRotateLeft)
         layout.addWidget(rotateLefttButton, 7, 0, 1, 2)
-        layout.addWidget(QLabel('Cliping: '), 8, 0, 1, 3)
+        layout.addWidget(QLabel('Clipping: '), 8, 0, 1, 3)
         layout.addWidget(QLabel('CohenSutherland'), 9, 0, 1, 3)
-        cliping_1 = QRadioButton()
-        cliping_1.clicked.connect(lambda: self.setWindowCliping(opt=1))
-        layout.addWidget(cliping_1, 9, 3)
+        clipping_1 = QRadioButton()
+        clipping_1.clicked.connect(lambda: self.setWindowClipping(opt=1))
+        layout.addWidget(clipping_1, 9, 3)
+        clipping_2 = QRadioButton()
         layout.addWidget(QLabel('Outro alg'), 10, 0, 1, 3)
-        cliping_1 = QRadioButton()
-        cliping_1.clicked.connect(lambda: self.setWindowCliping(opt=1))
-        layout.addWidget(cliping_1, 10, 3)
+        clipping_2.clicked.connect(lambda: self.setWindowClipping(opt=2))
+        layout.addWidget(clipping_2, 10, 3)
+        clipping_3 = QRadioButton()
+        layout.addWidget(QLabel('Nenhum'), 11, 0, 1, 3)
+        clipping_3.clicked.connect(lambda: self.setWindowClipping(opt=0))
+        clipping_3.setChecked(True)
+        layout.addWidget(clipping_3, 11, 3)
 
         movMenu.setLayout(layout)
         return movMenu
 
-    # determina o alg de cliping q deve ser usado
-    def setWindowCliping(self, opt=0):
-        if self.viewport.clipingAlg == opt:
-            self.viewport.clipingAlg = 0
-        else:
-            self.viewport.clipingAlg = opt
-        self.viewport.update()
+    # determina o alg de clipping q deve ser usado
+    def setWindowClipping(self, opt=0):
+        if self.viewport.clippingAlg != opt:
+            self.viewport.clippingAlg = opt
+            self.viewport.update()
 
     # função responsável por criar o menu de zoom in/out
     def createZoomMenu(self) -> QGroupBox:

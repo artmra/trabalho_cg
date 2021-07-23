@@ -32,6 +32,13 @@ objeto.
 
 ![Image of DelObj](src/images/delObj.png)
 
+### Informações extras
+- O eixo X é desenhado em vermelho; a porção positiva é aquela com tom mais claro;
+- O eixo Y é desenhado em azul; a porção positiva é aquela com tom mais claro;
+- Por padrão o clipping não é aplicado para linhas e os eixos; isso só ocorre após
+  clicar em alguma opção; isso ocorre apenas para mostrar que o clipping funciona;
+- A rotação da window ocorre em múltiplos de 10º;
+
 ### Links usados para auxílio no desenvolvimento do trabalho
 - [Conjunto de vídeos em br sobre PyQt5](https://www.youtube.com/playlist?list=PLwsAoT89dh3qJ8JcprQ8AuHY8AGasvx4G);
 - [Tutorial de criação de calculadora com PyQt5](https://realpython.com/python-pyqt-gui-calculator/);

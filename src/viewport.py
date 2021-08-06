@@ -71,7 +71,7 @@ class Viewport(QWidget):
         if self.clipingAlg == 1:
             line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
         elif self.clipingAlg == 2: # todo: alg cliping bryan
-            line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
+            line_coords = self.clipingLiangBarsky(x1, y1, x2, y2)
         else:
             line_coords = [x1, y1, x2, y2]
         if line_coords != [0, 0, 0, 0]:
@@ -84,8 +84,8 @@ class Viewport(QWidget):
         x2, y2 = self.viewportTransform(-lenght, 0)
         if self.clipingAlg == 1:
             line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
-        elif self.clipingAlg == 2: # todo: alg cliping bryan
-            line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
+        elif self.clipingAlg == 2:  # todo: alg cliping bryan
+            line_coords = self.clipingLiangBarsky(x1, y1, x2, y2)
         else:
             line_coords = [x1, y1, x2, y2]
         if line_coords != [0, 0, 0, 0]:
@@ -99,7 +99,7 @@ class Viewport(QWidget):
         if self.clipingAlg == 1:
             line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
         elif self.clipingAlg == 2: # todo: alg cliping bryan
-            line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
+            line_coords = self.clipingLiangBarsky(x1, y1, x2, y2)
         else:
             line_coords = [x1, y1, x2, y2]
         if line_coords != [0, 0, 0, 0]:
@@ -113,7 +113,7 @@ class Viewport(QWidget):
         if self.clipingAlg == 1:
             line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
         elif self.clipingAlg == 2: # todo: alg cliping bryan
-            line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
+            line_coords = self.clipingLiangBarsky(x1, y1, x2, y2)
         else:
             line_coords = [x1, y1, x2, y2]
         if line_coords != [0, 0, 0, 0]:
@@ -159,7 +159,7 @@ class Viewport(QWidget):
         if self.clipingAlg == 1:
             line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
         elif self.clipingAlg == 2: # todo: alg cliping bryan
-            line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
+            line_coords = self.clipingLiangBarsky(x1, y1, x2, y2)
         else:
             line_coords = x1, y1, x2, y2
         # se as coordenadas forem todas 0, n deve desenhar a linha
@@ -345,3 +345,54 @@ class Viewport(QWidget):
                     x2 = x
                     y2 = y
                     rc_fim = self.calcRC(x2, y2, xwesq, ywtopo, xwdir, ywfundo)
+
+    def clipingLiangBarsky(self, x1: float, y1: float, x2: float, y2: float) -> [float, float, float, float]:
+        xmin, ymin, xmax, ymax = self.getViewportCoords()
+
+        p1 = -(x2 - x1)
+        p2 = -p1
+        p3 = -(y2 - y1)
+        p4 = -p3
+
+        q1 = x1 - xmin
+        q2 = xmax - x1
+        q3 = y1 - ymin
+        q4 = ymax - y1
+
+        pos = list()
+        neg = list()
+        pos.append(1)
+        neg.append(0)
+        if (p1 == 0 and q1 < 0) or (p2 == 0 and q2 < 0) or (p3 == 0 and q3 < 0) or (p4 == 0 and q4 < 0):
+            return 0,0,0,0
+        if p1 != 0:
+            r1 = q1/p1
+            r2 = q2/p2
+            if p1 < 0:
+                neg.append(r1)
+                pos.append(r2)
+            else:
+                neg.append(r2)
+                pos.append(r1)
+        if p3 != 0:
+            r3 = q3/p3
+            r4 = q4/p4
+            if p3 < 0:
+                neg.append(r3)
+                pos.append(r4)
+            else:
+                neg.append(r4)
+                pos.append(r3)
+
+        rn1 = max(neg)
+        rn2 = min(pos)
+        if rn1 > rn2:
+            return 0,0,0,0
+        # if rn1 != 0:
+        x1 = x1 + p2 * rn1
+        y1 = y1 + p4 * rn1
+
+        # if rn2 != 1:
+        x2 = x2 + p2 * rn2
+        y2 = y2 + p4 * rn2
+        return x1, y1, x2, y2

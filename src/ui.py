@@ -131,11 +131,10 @@ class Ui(QMainWindow):
         cliping_1 = QRadioButton()
         cliping_1.clicked.connect(lambda: self.setWindowCliping(opt=1))
         layout.addWidget(cliping_1, 9, 3)
-        layout.addWidget(QLabel('Outro alg'), 10, 0, 1, 3)
-        cliping_1 = QRadioButton()
-        cliping_1.clicked.connect(lambda: self.setWindowCliping(opt=1))
-        layout.addWidget(cliping_1, 10, 3)
-
+        layout.addWidget(QLabel('LiangBarsky'), 10, 0, 1, 3)
+        cliping_2 = QRadioButton()
+        cliping_2.clicked.connect(lambda: self.setWindowCliping(opt=2))
+        layout.addWidget(cliping_2, 10, 3)
         movMenu.setLayout(layout)
         return movMenu
 

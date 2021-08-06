@@ -142,7 +142,7 @@ class DescritorOBJ:
         try:
             with open(filename) as file:
                 for line in file:
-                    if line.startswith("v"):
+                    if line.startswith("v "):
                         coords = ''.join(line.split('v ', 1))
                         coord_list = list()
                         for coord in coords.split(" ", 2):
@@ -180,6 +180,12 @@ class DescritorOBJ:
                                     self.list_objs.append(Wireframe(obj_name, x_y, color))
                                 except Exception as e:
                                     return e
+                        elif next_line.startswith("w"):
+                            window_coord = ''.join(next_line.split('w ', 1))
+                            window_center = x_y[0]
+                            win_max_x, win_max_y = x_y[1]
+                            print(win_max_x)
+
         except Exception as e:
             return e
 

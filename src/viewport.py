@@ -15,7 +15,6 @@ class Viewport(QWidget):
         self.recuoViewport = 30
         self.setFixedSize(self.viewportLenght, self.viewportHeight)
         self.world = world
-        self.window_ = self.world.getWindow()
         pal = self.palette()
         pal.setColor(QPalette.Background, QColor(30, 30, 30))
         self.setAutoFillBackground(True)
@@ -23,26 +22,24 @@ class Viewport(QWidget):
         self.dotPen = QPen(Qt.red, 5, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin)
         self.clippingAlg = 0
 
-    # retorna os valores xy_vpmin e xy_pvmax
+    # retorna os valores xy_vpmin e xy_vpmax
     def getViewportCoords(self) -> (float, float, float, float):
-        # coords = self.visibleRegion().boundingRect().getCoords()
-        xvpmin = self.recuoViewport - 1  # coordenadas da viewport começam em 0
-        yvpmin = self.recuoViewport - 1  # coordenadas da viewport começam em 0
-        xvpmax = self.viewportLenght - self.recuoViewport - 1  # coordenadas da viewport começam em 0
-        yvpmax = self.viewportHeight - self.recuoViewport - 1  # coordenadas da viewport começam em 0
+        xvpmin = self.recuoViewport
+        yvpmin = self.recuoViewport
+        xvpmax = self.viewportLenght - self.recuoViewport
+        yvpmax = self.viewportHeight - self.recuoViewport
         return xvpmin, yvpmin, xvpmax, yvpmax
 
-    # realiza a transformada de viewport para um ponto qualquer
+    # realiza a transformada de viewport para um ponto qualquer; os valores passados para esse método já são considera-
+    # dos os valores clipados e normalizados dos objetos.
     def viewportTransform(self, xw, yw) -> (float, float):
-        # aplicar a matriz scn da window as coordenadas do mundo
-        xw, yw = self.window_.applySCN(xw, yw)
         # realiza a transformada de viewport
-        xwmin, ywmin, xwmax, ywmax = self.window_.getCoords()
-        xwmin, ywmin = self.window_.applySCN(xwmin, ywmin)
-        xwmax, ywmax = self.window_.applySCN(xwmax, ywmax)
+        # xwmin, ywmin, xwmax, ywmax = self.world.getWindow().getCoords()
+        xwmin, ywmin = -1, -1
+        xwmax, ywmax = 1, 1
         xvpmin, yvpmin, xvpmax, yvpmax = self.getViewportCoords()
-        return ((xw - xwmin) / (xwmax - xwmin)) * (xvpmax - xvpmin),\
-               (1 - ((yw - ywmin) / (ywmax - ywmin))) * (yvpmax - yvpmin)
+        return ((xw - xwmin) / (xwmax - xwmin)) * (xvpmax - xvpmin) + xvpmin,\
+               (1 - ((yw - ywmin) / (ywmax - ywmin))) * (yvpmax - yvpmin) + yvpmin
 
     # método que é chamado toda vez que a viewport é atualizada via chamda de .update()
     def paintEvent(self, event):
@@ -60,70 +57,18 @@ class Viewport(QWidget):
     # porção que representa [0, -lenght] é desenhada no tom vermelho escuro. a porção que corresponte de [0, height] no
     # eixo x é a reta de tom azul mais claro, e a porção que representa [0, -height] é desenhada no tom azul escuro.
     def drawExys(self):
-        p1 = QPainter()
-        p2 = QPainter()
-        p3 = QPainter()
-        p4 = QPainter()
-        length, height = self.window_.getWindowDimensions()
-        length = length * self.viewportLenght
-        height = height * self.viewportHeight
-        x1, y1 = self.viewportTransform(0, 0)
+        length, height = self.world.getWindow().getWindowDimensions()
+        lines = list()
         # desenha linha de [0, lenght](direita) no eixo x - vermelho "claro"
-        x2, y2 = self.viewportTransform(lenght, 0)
-        if self.clipingAlg == 1:
-            line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
-        elif self.clipingAlg == 2: # todo: alg cliping bryan
-            line_coords = self.clipingLiangBarsky(x1, y1, x2, y2)
-        else:
-            line_coords = [x1, y1, x2, y2]
-        if line_coords != [0, 0, 0, 0]:
-            x1, y1, x2, y2 = line_coords
-            p1.begin(self)
-            p1.setPen(QPen(QColor(150, 0, 0, 255), 4))
-            p1.drawLine(x1, y1, x2, y2)
-            p1.end()
+        lines.append(Line('', [(0, 0), (length * 1000, 0)], color=(150, 0, 0)))
         # desenha linha de [0, -lenght](esquerda) no eixo x - vermelho "escuro"
-        x2, y2 = self.viewportTransform(-lenght, 0)
-        if self.clipingAlg == 1:
-            line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
-        elif self.clipingAlg == 2:  # todo: alg cliping bryan
-            line_coords = self.clipingLiangBarsky(x1, y1, x2, y2)
-        else:
-            line_coords = [x1, y1, x2, y2]
-        if line_coords != [0, 0, 0, 0]:
-            x1, y1, x2, y2 = line_coords
-            p2.begin(self)
-            p2.setPen(QPen(QColor(51, 0, 0, 255), 3))
-            p2.drawLine(x1, y1, x2, y2)
-            p2.end()
+        lines.append(Line('', [(0, 0), (-length * 1000, 0)], color=(51, 0, 0)))
         # desenha linha de [0, height](cima) no eixo y - azul "claro"
-        x2, y2 = self.viewportTransform(0, height)
-        if self.clipingAlg == 1:
-            line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
-        elif self.clipingAlg == 2: # todo: alg cliping bryan
-            line_coords = self.clipingLiangBarsky(x1, y1, x2, y2)
-        else:
-            line_coords = [x1, y1, x2, y2]
-        if line_coords != [0, 0, 0, 0]:
-            x1, y1, x2, y2 = line_coords
-            p3.begin(self)
-            p3.setPen(QPen(QColor(0, 0, 150, 255), 4))
-            p3.drawLine(x1, y1, x2, y2)
-            p3.end()
+        lines.append(Line('', [(0, 0), (0, height * 1000)], color=(0, 0, 150)))
         # desenha linha de [0, -height](baixo) no eixo y - azul "escuro"
-        x2, y2 = self.viewportTransform(0, -height)
-        if self.clipingAlg == 1:
-            line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
-        elif self.clipingAlg == 2: # todo: alg cliping bryan
-            line_coords = self.clipingLiangBarsky(x1, y1, x2, y2)
-        else:
-            line_coords = [x1, y1, x2, y2]
-        if line_coords != [0, 0, 0, 0]:
-            x1, y1, x2, y2 = line_coords
-            p4.begin(self)
-            p4.setPen(QPen(QColor(0, 0, 51, 255), 3))
-            p4.drawLine(x1, y1, x2, y2)
-            p4.end()
+        lines.append(Line('', [(0, 0), (0, -height * 1000)], color=(0, 0, 51)))
+        for line in lines:
+            self.drawLine(line)
 
     # desenha um retangulo branco que corresponde à area da viewport
     def drawSubCanvas(self):
@@ -140,6 +85,7 @@ class Viewport(QWidget):
 
     # desenha um ponto
     def drawPoint(self, point: Point):
+        # todo: clipar e normalizar antes de chamar a transformada
         p = QPainter()
         x, y = self.viewportTransform(point.getX(), point.getY())
         xesq, ytopo, xdir, yfundo = self.getViewportCoords()
@@ -154,20 +100,24 @@ class Viewport(QWidget):
     def drawLine(self, line: Line):
         p = QPainter()
         x1, y1 = line.getX1_Y1()
-        x1, y1 = self.viewportTransform(x1, y1)
         x2, y2 = line.getX2_Y2()
-        x2, y2 = self.viewportTransform(x2, y2)
+        # aplica o sistema de coordenadas normalizado para os pontos inicial e final da linha
+        x1, y1 = self.world.getWindow().applySCN(x1, y1)
+        x2, y2 = self.world.getWindow().applySCN(x2, y2)
         # realiza o cliping usando algum critério
-        if self.clipingAlg == 1:
-            line_coords = self.clipingCohenSutherland(x1, y1, x2, y2)
-        elif self.clipingAlg == 2: # todo: alg cliping bryan
-            line_coords = self.clipingLiangBarsky(x1, y1, x2, y2)
+        if self.clippingAlg == 1:
+            line_coords = self.clippingCohenSutherland(x1, y1, x2, y2)
+        elif self.clippingAlg == 2: # todo: alg cliping bryan
+            line_coords = self.clippingLiangBarsky(x1, y1, x2, y2)
         else:
             line_coords = x1, y1, x2, y2
         # se as coordenadas forem todas 0, n deve desenhar a linha
         if line_coords == [0, 0, 0, 0]:
             return
         x1, y1, x2, y2 = line_coords
+        # aplica a transformada de viewport para os pontos atualizados dessa linha
+        x1, y1 = self.viewportTransform(x1, y1)
+        x2, y2 = self.viewportTransform(x2, y2)
         p.begin(self)
         p.setPen(QPen(line.getColor(), 3, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
         p.drawLine(x1, y1, x2, y2)
@@ -215,42 +165,42 @@ class Viewport(QWidget):
 
     # diminui a window
     def zoomIn(self):
-        self.window_.zoomIn()
+        self.world.getWindow().zoomIn()
         self.update()
 
     # aumenta a window
     def zoomOut(self):
-        self.window_.zoomOut()
+        self.world.getWindow().zoomOut()
         self.update()
 
     # move a window para cima
     def moveUp(self):
-        self.window_.moveUp()
+        self.world.getWindow().moveUp()
         self.update()
 
     # move a window para a direita
     def moveRight(self):
-        self.window_.moveRight()
+        self.world.getWindow().moveRight()
         self.update()
 
     # move a window para a esquerda
     def moveLeft(self):
-        self.window_.moveLeft()
+        self.world.getWindow().moveLeft()
         self.update()
 
     # move a window para baixo
     def moveDown(self):
-        self.window_.moveDown()
+        self.world.getWindow().moveDown()
         self.update()
 
     # roda a window para a direita(sentido horario)
     def rotateRight(self):
-        self.window_.rotateRight()
+        self.world.getWindow().rotateRight()
         self.update()
 
     # roda a window para a esquerda(sentido anti-horario)
     def rotateLeft(self):
-        self.window_.rotateLeft()
+        self.world.getWindow().rotateLeft()
         self.update()
 
     # adiciona um objento no mundo
@@ -281,19 +231,22 @@ class Viewport(QWidget):
         return value
 
     # calcula o RC de um ponto qualquer, necessario no algoritmo de CohenSutherland
+    # todo: checar qualquer algoritmo q tenha relação com esses valroes
     def calcRC(self, x: float, y: float,
                xwesq: float, ywtopo: float, xwdir: float, ywfundo: float) -> [int, int, int, int]:
-        return [1 if y < ywtopo else 0, # viewport tem eixo y invertido
-                1 if y > ywfundo else 0, # viewport tem eixo y invertido
+        return [1 if y > ywtopo else 0,
+                1 if y < ywfundo else 0,
                 1 if x > xwdir else 0,
                 1 if x < xwesq else 0]
 
     # Algoritmo Geral para Recorte de Linhas de Cohen-Sutherland. Retorna 0,0,0,0 caso a linha não seja visivel
-    # considerando o tamanho atual da viewport; caso contrario retorna as coordenadas em uma lista, ajustadas na
+    # considerando o tamanho atual da window; caso contrario retorna as coordenadas em uma lista, ajustadas na
+    # considerando o tamanho atual da window; caso contrario retorna as coordenadas em uma lista, ajustadas na
     # ordem x1, y1, x2, y2.
     def clippingCohenSutherland(self, x1: float, y1: float, x2: float, y2: float) -> [float, float, float, float]:
-        # xwesq, ywfundo, xwdir, ywtopo = self.getViewportCoords()
-        xwesq, ywtopo, xwdir, ywfundo = self.getViewportCoords()
+        # xwesq, ywfundo, xwdir, ywtopo = self.world.getWindow().getCoords()
+        xwesq, ywfundo = -1, -1
+        xwdir, ywtopo = 1, 1
         # Region Codes das linhas
         rc_ini = self.calcRC(x1, y1, xwesq, ywtopo, xwdir, ywfundo)
         rc_fim = self.calcRC(x2, y2, xwesq, ywtopo, xwdir, ywfundo)

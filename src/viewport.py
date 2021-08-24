@@ -16,17 +16,18 @@ class Viewport(QWidget):
         self.setFixedSize(self.viewportLenght, self.viewportHeight)
         self.world = world
         pal = self.palette()
-        pal.setColor(QPalette.Background, QColor(30, 30, 30))
+        pal.setColor(QPalette.Background, QColor(255, 255, 255))
         self.setAutoFillBackground(True)
         self.setPalette(pal)
         self.dotPen = QPen(Qt.red, 5, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin)
         self.clippingAlg = 0
         # test objs
-        self.addObj(Wireframe('test', [(10, 10), (60, 100), (110, 10)]))
-        self.addObj(Line('l1', [(0,0), (-100, -100)]))
-        self.addObj(Line('l2', [(0, 0), (-100, 100)]))
-        self.addObj(Line('l3', [(0, 0), (100, -100)]))
-        self.addObj(Line('l4', [(0, 0), (100, 100)]))
+        self.addObj(Wireframe('test_wireframe', [(10, 10), (60, 100), (110, 20), (160, 100), (210, 10)]))
+        self.addObj(Line('test_line_1', [(0, 0), (-100, -100)], (0, 200, 0)))
+        self.addObj(Line('test_line_2', [(0, 0), (100, 100)], (0, 100, 0)))
+        self.addObj(Point('test_point_1', (-50, -50)))
+        self.addObj(Point('test_point_2', (-35, 10)))
+        self.addObj(Point('test_point_3', (79, -58)))
 
     # retorna os valores xy_vpmin e xy_vpmax
     def getViewportCoords(self) -> (float, float, float, float):
@@ -80,7 +81,7 @@ class Viewport(QWidget):
     def drawSubCanvas(self):
         p = QPainter()
         p.begin(self)
-        p.setPen(QPen(Qt.white, 3, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
+        p.setPen(QPen(Qt.black, 3, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
         p.drawLine(self.recuoViewport, self.recuoViewport, self.recuoViewport, self.viewportLenght - self.recuoViewport)
         p.drawLine(self.recuoViewport, self.viewportHeight - self.recuoViewport,
                    self.viewportLenght - self.recuoViewport, self.viewportHeight - self.recuoViewport)
@@ -96,7 +97,7 @@ class Viewport(QWidget):
         x, y = point.getX(), point.getY()
         x, y = self.world.getWindow().applySCN(x, y)
         # checa se o ponto é visivel na window; caso sim ele é desenhado
-        if self.clippingAlg != 0 and (-1) < x < 1 and (-1) < y < 1:
+        if self.clippingAlg == 0 or (self.clippingAlg != 0 and (-1) < x < 1 and (-1) < y < 1):
             x, y = self.viewportTransform(x, y)
             p.begin(self)
             p.setPen(QPen(point.getColor(), 5, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
@@ -146,10 +147,11 @@ class Viewport(QWidget):
         # um poligono pode acabar virando multiplos sub poligonos.
         sub_polys = []
         if self.clippingAlg != 0:
-            sub_polys.extend(self.clippingWeilerAtherton(wire_coords=wire_coords))
+            clipping_result = self.clippingWeilerAtherton(wire_coords=wire_coords)
             # caso em que o poly esta fora da viewport
-            if sub_polys is None:
+            if clipping_result is None:
                 return
+            sub_polys.extend(clipping_result)
         else:
             sub_polys.append(wire_coords)
         # desenhas os poligonos na lista sub_polys

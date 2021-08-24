@@ -327,58 +327,52 @@ class Viewport(QWidget):
                     y2 = y
                     rc_fim = self.calcRC(x2, y2, xwesq, ywtopo, xwdir, ywfundo)
 
-    def clipingLiangBarsky(self, x1: float, y1: float, x2: float, y2: float) -> [float, float, float, float]:
-        xmin, ymin, xmax, ymax = self.getViewportCoords()
+    def clippingLiangBarsky(self, x1: float, y1: float, x2: float, y2: float) -> [float, float, float, float]:
+        xmin, ymin,= -1, -1
+        xmax, ymax = 1, 1
 
-        p1 = -(x2 - x1)
-        p2 = -p1
-        p3 = -(y2 - y1)
-        p4 = -p3
+        dx = x2 - x1
+        dy = y2 - y1
 
-        q1 = x1 - xmin
-        q2 = xmax - x1
-        q3 = y1 - ymin
-        q4 = ymax - y1
+        t0 = 0
+        t1 = 1
 
-        pos = list()
-        neg = list()
-        pos.append(1)
-        neg.append(0)
-        if (p1 == 0 and q1 < 0) or (p2 == 0 and q2 < 0) or (p3 == 0 and q3 < 0) or (p4 == 0 and q4 < 0):
-            return 0,0,0,0
-        if p1 != 0:
-            r1 = q1/p1
-            r2 = q2/p2
-            if p1 < 0:
-                neg.append(r1)
-                pos.append(r2)
-            else:
-                neg.append(r2)
-                pos.append(r1)
-        if p3 != 0:
-            r3 = q3/p3
-            r4 = q4/p4
-            if p3 < 0:
-                neg.append(r3)
-                pos.append(r4)
-            else:
-                neg.append(r4)
-                pos.append(r3)
+        for edge in range(0, 4):
+            if edge == 0:
+                p = -dx
+                q = -(xmin - x1)
+            if edge == 1:
+                p = dx
+                q = (xmax - x1)
+            if edge == 2:
+                p = -dy
+                q = -(ymin - y1)
+            if edge == 3:
+                p = dy
+                q = (ymax - y1)
 
-        rn1 = max(neg)
-        rn2 = min(pos)
-        if rn1 > rn2:
-            return 0,0,0,0
-        # if rn1 != 0:
-        x1 = x1 + p2 * rn1
-        y1 = y1 + p4 * rn1
+            r = q/p
+            if p == 0 and q < 0:
+                return 0, 0, 0, 0
 
-        # if rn2 != 1:
-        x2 = x2 + p2 * rn2
-        y2 = y2 + p4 * rn2
+            if p < 0:
+                if r > t1:
+                    return 0, 0, 0, 0
+                elif r > t0:
+                    t0 = r
+            elif p > 0:
+                if r < t0:
+                    return 0, 0, 0, 0
+                elif r < t1:
+                    t1 = r
+        x1 = x1 + t0 * dx
+        y1 = y1 + t0 * dy
+
+        x2 = x1 + t1 * dx
+        y2 = y1 + t1 * dy
+
         return x1, y1, x2, y2
-
-
+    
     # retorna o endereço que um ponto de intersecção deve ocupar na lista de coords do clippingPoly
     # retona dois valores, o primeiro é a lista na qual o ponto deve ser inserido, e o segundo o indice
     def serchPlaceInClippingPolyList(self, point, pontosTopo, pontosDireita, pontosFundo, pontosEsquerda) -> [int, int]:

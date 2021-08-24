@@ -21,6 +21,12 @@ class Viewport(QWidget):
         self.setPalette(pal)
         self.dotPen = QPen(Qt.red, 5, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin)
         self.clippingAlg = 0
+        # test objs
+        self.addObj(Wireframe('test', [(10, 10), (60, 100), (110, 10)]))
+        self.addObj(Line('l1', [(0,0), (-100, -100)]))
+        self.addObj(Line('l2', [(0, 0), (-100, 100)]))
+        self.addObj(Line('l3', [(0, 0), (100, -100)]))
+        self.addObj(Line('l4', [(0, 0), (100, 100)]))
 
     # retorna os valores xy_vpmin e xy_vpmax
     def getViewportCoords(self) -> (float, float, float, float):
@@ -87,10 +93,11 @@ class Viewport(QWidget):
     def drawPoint(self, point: Point):
         # todo: clipar e normalizar antes de chamar a transformada
         p = QPainter()
-        x, y = self.viewportTransform(point.getX(), point.getY())
-        xesq, ytopo, xdir, yfundo = self.getViewportCoords()
+        x, y = point.getX(), point.getY()
+        x, y = self.world.getWindow().applySCN(x, y)
         # checa se o ponto é visivel na window; caso sim ele é desenhado
-        if xesq < x < xdir and yfundo > y > ytopo:
+        if self.clippingAlg != 0 and (-1) < x < 1 and (-1) < y < 1:
+            x, y = self.viewportTransform(x, y)
             p.begin(self)
             p.setPen(QPen(point.getColor(), 5, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
             p.drawPoint(x, y)
@@ -128,40 +135,41 @@ class Viewport(QWidget):
         p = QPainter()
         # p_ = QPainter()
         x1, y1 = wireframe.coords[0]
-        x1, y1 = self.viewportTransform(x1, y1)
+        x1, y1 = self.world.getWindow().applySCN(x1, y1)
         wire_coords = [(x1, y1)]
-        # poly_points = [QPoint(x1, y1)]
         for i in range(1, len(wireframe.coords)):
             x2, y2 = wireframe.coords[i]
-            x2, y2 = self.viewportTransform(x2, y2)
+            x2, y2 = self.world.getWindow().applySCN(x2, y2)
             wire_coords.append((x2, y2))
-            # poly_points.append(QPoint(x2, y2))
-        sub_polys = self.clippingWeilerAtherton(wire_coords=wire_coords)
-        # caso em que o poly esta fora da viewport
-        if sub_polys is None:
-            return
-        # desenhas os sub-poligonos gerados
+
+        # essa lista existe apenas para conter todos os poligonos que serão desenhados. Caso o clipping seja ligado
+        # um poligono pode acabar virando multiplos sub poligonos.
+        sub_polys = []
+        if self.clippingAlg != 0:
+            sub_polys.extend(self.clippingWeilerAtherton(wire_coords=wire_coords))
+            # caso em que o poly esta fora da viewport
+            if sub_polys is None:
+                return
+        else:
+            sub_polys.append(wire_coords)
+        # desenhas os poligonos na lista sub_polys
         p.begin(self)
         p.setPen(QPen(wireframe.getColor(), 3, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
         p.setBrush(QBrush(wireframe.getColor()))
         for sub_poly in sub_polys:
             x0, y0 = sub_poly[0]
+            x0, y0 = self.viewportTransform(x0, y0)
             x1, y1 = x0, y0
             poly_points = [QPoint(x1, y1)]
             for i in range(1, len(sub_poly)):
                 x2, y2 = sub_poly[i]
+                x2, y2 = self.viewportTransform(x2, y2)
                 poly_points.append(QPoint(x2, y2))
                 p.drawLine(x1, y1, x2, y2)
                 x1, y1 = x2, y2
-            poly_points.append(QPoint(x0, y0))
             p.drawLine(x1, y1, x0, y0)
             p.drawPolygon(QPolygon(poly_points))
         p.end()
-        # preenche o poligono. Talvez tenha q mudar se não der para fazer isso.
-        # p_.begin(self)
-        # p_.setBrush(QBrush(wireframe.getColor()))
-        # p_.drawPolygon(QPolygon(poly_points))
-        # p_.end()
 
     # diminui a window
     def zoomIn(self):
@@ -367,6 +375,8 @@ class Viewport(QWidget):
         x2 = x2 + p2 * rn2
         y2 = y2 + p4 * rn2
         return x1, y1, x2, y2
+
+
     # retorna o endereço que um ponto de intersecção deve ocupar na lista de coords do clippingPoly
     # retona dois valores, o primeiro é a lista na qual o ponto deve ser inserido, e o segundo o indice
     def serchPlaceInClippingPolyList(self, point, pontosTopo, pontosDireita, pontosFundo, pontosEsquerda) -> [int, int]:
@@ -385,46 +395,53 @@ class Viewport(QWidget):
         x_1, y_1 = pontosDireita[0]
         _, y_2 = pontosDireita[len(pontosDireita) - 1]
         # esta na direita
-        if x == x_1 and y_1 < y < y_2:  # eixo y invertido na viewport
+        if x == x_1 and y_1 > y > y_2:
             for i in range(len(pontosDireita)):
                 _, y_ = pontosDireita[i]
-                if y < y_:
+                if y > y_:
                     # elemento deve estar na lista de pontos do topo, na posicao i
                     return 2, i
 
         x_1, y_1 = pontosFundo[0]
         x_2, _ = pontosFundo[len(pontosFundo) - 1]
         # esta no fundo
-        if y == y_1 and x_1 < x < x_2:
+        if y == y_1 and x_1 > x > x_2:
             for i in range(len(pontosFundo)):
                 x_, _ = pontosFundo[i]
                 if x > x_:
                     # elemento deve estar na lista de pontos do topo, na posicao i
                     return 3, i
 
+        x_1, y_1 = pontosEsquerda[0]
+        _, y_2 = pontosEsquerda[len(pontosEsquerda) - 1]
         # esta na esquerda
-        for i in range(len(pontosEsquerda)):
-            _, y_ = pontosEsquerda[i]
-            if y > y_:
-                # elemento deve estar na lista de pontos da esquerda, na posicao i
-                return 4, i
+        if x == x_1 and y_1 < y < y_2:
+            for i in range(len(pontosEsquerda)):
+                _, y_ = pontosEsquerda[i]
+                if y < y_:
+                    # elemento deve estar na lista de pontos da esquerda, na posicao i
+                    return 4, i
+
+        return -1, -1
 
     # Algoritmo de clipping de poligonos de Weiler Atherton. Retorna None caso nenhuma parte seja visivel; se houverem
     # partes visiveis elas sao retornadas em uma lista de subpoligonos.
     def clippingWeilerAtherton(self, wire_coords: list) -> list:
-        xvpesq, yvptopo, xvpdir, yvpfundo = self.getViewportCoords()
+        # xvpesq, yvptopo, xvpdir, yvpfundo = self.getViewportCoords()
+        xvpesq, yvpfundo = -1, -1
+        yvptopo, xvpdir = 1, 1
         # dic com os RC codes de cada ponto do poligono
         RC = {point: self.calcRC(point[0], point[1], xvpesq, yvptopo, xvpdir, yvpfundo) for point in wire_coords}
-        # lista de pontos da viewport, divididos em quatro listas: pontosEsquerda, pontosTopo, pontosDir e pontosFundo
-        # essas listas serao usadas para compor a lista que contem os pontos da viewport e interseções geradas no proce
+        # lista de pontos da window, divididos em quatro listas: pontosEsquerda, pontosTopo, pontosDir e pontosFundo
+        # essas listas serao usadas para compor a lista que contem os pontos da window e interseções geradas no proce
         # sso de clipping
-        pontosTopo = [(xvpesq, yvptopo), (xvpdir, yvptopo)]
-        pontosDireita = [(xvpdir, yvptopo), (xvpdir, yvpfundo)]
-        pontosFundo = [(xvpdir, yvpfundo), (xvpesq, yvpfundo)]
-        pontosEsquerda = [(xvpesq, yvpfundo), (xvpesq, yvptopo)]
-        # dic de interseções de entrada na viewport
+        pontosTopo = [(xvpesq, yvptopo), (xvpdir, yvptopo)] # (-1,1) ~ (1,1)
+        pontosDireita = [(xvpdir, yvptopo), (xvpdir, yvpfundo)] # (1,1) ~ (1,-1)
+        pontosFundo = [(xvpdir, yvpfundo), (xvpesq, yvpfundo)] # (1,-1) ~ (-1,-1)
+        pontosEsquerda = [(xvpesq, yvpfundo), (xvpesq, yvptopo)] # (-1,-1) ~ (-1,1)
+        # dic de interseções de entrada na window
         in_intersec = []
-        # dic de interseções de saida na viewport
+        # dic de interseções de saida na window
         ou_intersec = []
         clipped_poly = []
         x1, y1 = wire_coords[0]
@@ -436,33 +453,32 @@ class Viewport(QWidget):
             x2, y2 = wire_coords[i]
             # realiza o clipping de uma linha qualquer do poligono
             new_coords = self.clippingCohenSutherland(x1, y1, x2, y2)
-            # se o retorno do alg de CohenSutherland for [0,0,0,0] significa q a linha esta fora da area da viewport, e
+            # se o retorno do alg de CohenSutherland for [0,0,0,0] significa q a linha esta fora da area da window, e
             # n gerou nenhum ponto de interseção
             if new_coords == (0, 0, 0, 0):
                 clipped_poly.append((x2, y2))
                 x1, y1 = x2, y2
                 continue
-            # a partir daqui o cenário é o seguinte: a linha está totalmente ou parcialmente fora da viewport
+            # a partir daqui o cenário é o seguinte: a linha está totalmente ou parcialmente dentro da window
             x1_, y1_, x2_, y2_ = new_coords
             new_x1y1 = False
             new_x2y2 = False
             # coord x1,y1 mudou
-            if (x1, y1) != (x1_, y1_): # a iteracao anterior sempre introduz x1, y1, caso n tenha mudado
-                # criou um ponto intermediario
-                new_x1y1 = True
+            if (x1, y1) != (x1_, y1_): # a iteracao anterior sempre introduz x1, y1
                 # insere o ponto novo
                 clipped_poly.append((x1_, y1_))
+                # criou um ponto intermediario
+                new_x1y1 = True
 
-            # coord x2,y2 n mudou
-            if (x2, y2) == (x2_, y2_):
-                clipped_poly.append((x2, y2))
-            # coord x2,y2 mudou
-            else:
-                new_x2y2 = True
+            # coord x2,y2 mudou, criou um ponto intermediario (x2_, y2_)
+            if (x2, y2) != (x2_, y2_):
                 # insere o ponto novo
                 clipped_poly.append((x2_, y2_))
                 # criou um ponto intermediario
-                clipped_poly.append((x2, y2))
+                new_x2y2 = True
+
+            # adiciona o ponto (x2, y2) a lista de pontos clipados;
+            clipped_poly.append((x2, y2))
 
             # calcula rc do novo x1,y1, caso tenha sido criado
             RC_new_x1y1 = self.calcRC(x1_, y1_, xvpesq, yvptopo, xvpdir, yvpfundo) if new_x1y1 else None
@@ -471,6 +487,7 @@ class Viewport(QWidget):
 
             # verifica se o novo x1,y1 é uma intersec de entrada ou saida, caso exista
             if new_x1y1:
+                RC.update({(x1_, y1_): RC_new_x1y1})
                 RC_x1 = RC[(x1, y1)]
                 RC_x2 = RC_new_x2y2 if new_x2y2 else RC[(x2, y2)]
                 # intersec entrando
@@ -479,10 +496,10 @@ class Viewport(QWidget):
                 # intersec saindo
                 else:
                     ou_intersec.append((x1_, y1_))
-                # insere esse novo ponto em alguma das listas de coords da borda da viewport
+                # insere esse novo ponto em alguma das listas de coords da borda da window
                 list_to_insert, index = self.serchPlaceInClippingPolyList((x1_, y1_), pontosTopo, pontosDireita,
                                                                           pontosFundo, pontosEsquerda)
-                # insere na lista adequada
+                # insere na lista adequada, se o retorno for -1, -1 significa q o ponto é alguma das extremidades
                 if list_to_insert == 1:
                     pontosTopo.insert(index, (x1_, y1_))
                 elif list_to_insert == 2:
@@ -493,7 +510,8 @@ class Viewport(QWidget):
                     pontosEsquerda.insert(index, (x1_, y1_))
             # verifica se o novo x2,y2 é uma intersec de entrada ou saida, caso exista
             if new_x2y2:
-                RC_x1 = RC_new_x1y1 if new_x1y1 else RC[(x1, y1)]
+                RC.update({(x2_, y2_): RC_new_x2y2})
+                RC_x1 = RC[(x1_, y1_)] if new_x1y1 else RC[(x1, y1)]
                 RC_x2 = RC[(x2, y2)]
                 # intersec entrando
                 if RC_x1 != [0, 0, 0, 0] and RC_x2 == [0, 0, 0, 0]:
@@ -501,7 +519,7 @@ class Viewport(QWidget):
                 # intersec saindo
                 else:
                     ou_intersec.append((x2_, y2_))
-                # insere esse novo ponto em alguma das listas de coords da borda da viewport
+                # insere esse novo ponto em alguma das listas de coords da borda da window
                 list_to_insert, index = self.serchPlaceInClippingPolyList((x2_, y2_), pontosTopo,
                                                                           pontosDireita, pontosFundo, pontosEsquerda)
                 # insere na lista adequada
@@ -525,47 +543,47 @@ class Viewport(QWidget):
         clipping_poly.extend(pontosEsquerda[:-1])
         new_polys = []
         # se não tiver ponto de interseção de entrada ocorreram dois casos: o poligono está totalmente contido
-        # dentro da viewport ou totalmente fora
+        # dentro da window ou totalmente fora
         if not in_intersec:
             if all(RC[point] == [0, 0, 0, 0] for point in clipped_poly):
                 return [clipped_poly]
             else:
                 return None
-        # copia da lista de pontos de entrada na viewport
+        # copia da lista de pontos de entrada na window
         in_intersec_ = []
         in_intersec_.extend(in_intersec)
         visited = []
         # enquanto todos os pontos de entrada n tiverem sido visitados pelo menos uma vez
         while not len(visited) == len(in_intersec_):
-            # pega o primeiro ponto de entrada na area da viewport e ja tira da lista de in_intersec
+            # pega o primeiro ponto de entrada na area da window e ja tira da lista de in_intersec
             p0 = in_intersec.pop(0)
             visited.append(p0)
             # lista de pontos do novo sub poly
             new_poly = [p0]
             # indice inicial
             index = (clipped_poly.index(p0) + 1) % len(clipped_poly)
-            # andando pelas bordas do poly quando True; quando False, pelas bordas da viewport
+            # andando pelas bordas do poly quando True; quando False, pelas bordas da window
             in_poly = True
             # percorre até achar o ponto de entrada p0
             while(1):
                 if in_poly:
                     # adiciona o ponto a lista de pontos do novo sub poly
                     new_poly.append(clipped_poly[index])
-                    # checa se o ponto adicionado é um ponto de saida da viewport
+                    # checa se o ponto adicionado é um ponto de saida da window
                     if clipped_poly[index] in ou_intersec:
-                        # indice dentro da lista de pontos da borda da viewport
+                        # indice dentro da lista de pontos da borda da window
                         index = (clipping_poly.index(clipped_poly[index]) + 1) % len(clipping_poly)
-                        # comeca a navegar pela lista de bordas da viewport
+                        # comeca a navegar pela lista de bordas da window
                         in_poly = False
-                        continue
-                    # atualiza o indice de maneira circular
-                    index = (index + 1) % len(clipped_poly)
+                    else:
+                        # atualiza o indice de maneira circular
+                        index = (index + 1) % len(clipped_poly)
                 else:
                     # se não for o ponto inicial, adiciona a lista de pontos do sub poly
                     if clipping_poly[index] != p0:
                         # atualiza o ponto a lista de pontos do novo sub poly
                         new_poly.append(clipping_poly[index])
-                        # checa se o ponto adicionado é um ponto de entrada na viewport
+                        # checa se o ponto adicionado é um ponto de entrada na window
                         if clipping_poly[index] in in_intersec_:
                             # adiciona o ponto de entrada a lista de visitados, caso ele ainda n tenha sido
                             if clipping_poly[index] not in visited:
@@ -574,9 +592,9 @@ class Viewport(QWidget):
                             index = (clipped_poly.index(clipping_poly[index]) + 1) % len(clipped_poly)
                             # comeca a navegar pela lista de pontos do poly
                             in_poly = True
-                            continue
-                        # atualiza o indice de maneira circular
-                        index = (index + 1) % len(clipping_poly)
+                        else:
+                            # atualiza o indice de maneira circular
+                            index = (index + 1) % len(clipping_poly)
                     # fechou um poligono
                     else:
                         break

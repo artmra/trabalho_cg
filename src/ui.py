@@ -36,6 +36,9 @@ class Ui(QMainWindow):
         self.funcMenu = self.createFuncMenu()
         self.funcMenu.setParent(self)
         self.funcMenu.move(5, 5)
+        # preenche a lista de objetos com eventuais objetos criados juntos com a viewport
+        for obj in self.world.getObjs():
+            self.objListView.addItem(obj.getName())
 
     def createActionsMenuBar(self):
         # Import action
@@ -144,7 +147,7 @@ class Ui(QMainWindow):
         clipping_2.clicked.connect(lambda: self.setWindowCliping(opt=2))
         layout.addWidget(clipping_2, 10, 3)
         clipping_3 = QRadioButton()
-        layout.addWidget(QLabel('Nenhum'), 11, 0, 1, 3)
+        layout.addWidget(QLabel('None'), 11, 0, 1, 3)
         clipping_3.clicked.connect(lambda: self.setWindowClipping(opt=0))
         clipping_3.setChecked(True)
         layout.addWidget(clipping_3, 11, 3)

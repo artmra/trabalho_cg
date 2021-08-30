@@ -144,7 +144,7 @@ class Ui(QMainWindow):
         layout.addWidget(clipping_1, 9, 3)
         layout.addWidget(QLabel('LiangBarsky'), 10, 0, 1, 3)
         clipping_2 = QRadioButton()
-        clipping_2.clicked.connect(lambda: self.setWindowCliping(opt=2))
+        clipping_2.clicked.connect(lambda: self.setWindowClipping(opt=2))
         layout.addWidget(clipping_2, 10, 3)
         clipping_3 = QRadioButton()
         layout.addWidget(QLabel('None'), 11, 0, 1, 3)

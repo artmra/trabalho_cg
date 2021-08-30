@@ -2,7 +2,7 @@ import numpy
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QComboBox, QGroupBox, \
     QTabWidget, QPlainTextEdit, QFormLayout, QStackedLayout, QVBoxLayout
-from src.objs import Point, Line, Wireframe
+from src.objs import Point, Line, Wireframe, BezierCurve
 from src.viewport import Viewport
 
 
@@ -117,6 +117,51 @@ class CreateWireframeMenu(CreateMenu):
             msg.setText(str(e))
             msg.exec_()
 
+# janela de criacao de Bezier
+class CreateBezierMenu(CreateMenu):
+    def __init__(self, viewport: Viewport, objListView: QComboBox, inputCoords=None):
+        super().__init__('Criação de Curva de Bezier', viewport, objListView)
+        self.createButton.clicked.connect(self.clickCreate)
+        self.create_generic_menu()
+        self.setFixedSize(400, 200)
+
+    def clickCreate(self):
+        try:
+            coords = tuple(eval(self.coords.text()))
+            try:
+                rgb = tuple(eval(self.rgb.text()))
+                obj = BezierCurve(self.name.text(), coords, rgb)
+            except:
+                obj = BezierCurve(self.name.text(), coords)
+            self.verify_duplicate_obj(obj)
+        except Exception as e:
+            msg = QMessageBox()
+            msg.setWindowTitle('Erro no processo de criação')
+            msg.setText(str(e))
+            msg.exec_()
+
+# janela de criacao de B-Spline
+class CreateBSplineMenu(CreateMenu):
+    def __init__(self, viewport: Viewport, objListView: QComboBox, inputCoords=None):
+        super().__init__('Criação de B-Spline', viewport, objListView)
+        self.createButton.clicked.connect(self.clickCreate)
+        self.create_generic_menu()
+        self.setFixedSize(400, 200)
+
+    def clickCreate(self):
+        try:
+            coords = tuple(eval(self.coords.text()))
+            try:
+                rgb = tuple(eval(self.rgb.text()))
+                obj = Wireframe(self.name.text(), coords, rgb)
+            except:
+                obj = Wireframe(self.name.text(), coords)
+            self.verify_duplicate_obj(obj)
+        except Exception as e:
+            msg = QMessageBox()
+            msg.setWindowTitle('Erro no processo de criação')
+            msg.setText(str(e))
+            msg.exec_()
 
 # janela de realização de transformacoes
 class CreateTransformMenu(CreateMenu):

@@ -2,7 +2,7 @@ from PyQt5.QtGui import QPen, QPainter, QPalette, QColor, QPolygon, QBrush
 from PyQt5.QtWidgets import QMessageBox, QWidget
 from PyQt5.QtCore import Qt, QPoint
 
-from objs import Line, Point, Wireframe, TwoDObj, TwoDObjType
+from objs import Line, Point, Wireframe, BezierCurve, TwoDObj, TwoDObjType
 
 
 # Classe que implementa uma viewport para a aplicação
@@ -28,6 +28,7 @@ class Viewport(QWidget):
         self.addObj(Point('test_point_1', (-50, -50)))
         self.addObj(Point('test_point_2', (-35, 10)))
         self.addObj(Point('test_point_3', (79, -58)))
+        self.addObj(BezierCurve('test_bezier_curve', [(0, 0), (0, 100), (100, 100), (100, 0)]))
 
     # retorna os valores xy_vpmin e xy_vpmax
     def getViewportCoords(self) -> (float, float, float, float):
@@ -56,8 +57,10 @@ class Viewport(QWidget):
                 self.drawPoint(obj)
             elif obj.twoDType.value == TwoDObjType.LINE.value:
                 self.drawLine(obj)
-            else:
+            elif obj.twoDType.value == TwoDObjType.POLY.value:
                 self.drawWireframe(obj)
+            else:
+                self.drawCurve(obj)
         self.drawSubCanvas()
 
     # desenha os eixos x e y; a porção que corresponte de [0, lenght] no eixo x é a reta de tom vermelho mais clara, e a
@@ -173,7 +176,82 @@ class Viewport(QWidget):
             p.drawPolygon(QPolygon(poly_points))
         p.end()
 
-    # diminui a window
+    def drawCurve(self, curve: BezierCurve):
+        p = QPainter()
+        x1, y1 = curve.coords[0]
+        x1, y1 = self.world.getWindow().applySCN(x1, y1)
+        curve_coords = [(x1, y1)]
+        for i in range(1, len(curve.coords)):
+            x2, y2 = curve.coords[i]
+            x2, y2 = self.world.getWindow().applySCN(x2, y2)
+            curve_coords.append((x2, y2))
+
+        sub_curves = []
+
+        if self.clippingAlg == 0:
+            sub_curves.append(curve_coords)
+        else:
+            clippedCurve = self.clipCurve(curve_coords)
+            # se a lista de linhas da curva clipada for nula, retorna
+            if not clippedCurve:
+                return
+            sub_curves.extend(clippedCurve)
+        p.begin(self)
+        p.setPen(QPen(curve.getColor(), 3, Qt.SolidLine, Qt.RoundCap, Qt.MiterJoin))
+        # desenha as linhas restantes do processo de clipping, se tiver ocorrido. ou a linha por completo
+        for curve_lines in sub_curves:
+            x1, y1 = curve_lines.pop(0)
+            x1, y1 = self.viewportTransform(x1, y1)
+            for x2, y2 in curve_lines:
+                x2, y2 = self.viewportTransform(x2, y2)
+                p.drawLine(x1, y1, x2, y2)
+                x1, y1 = x2, y2
+        p.end()
+
+    def clipCurve(self, curve_coords: list):
+        # lista com todas as sub curvas geradas pelo clipping
+        sub_curves = []
+        # lista com pontos q formam um sub curva da curva atual
+        sub_curve = []
+        x1, y1 = curve_coords.pop(0)
+        # ainda n se sabe se a primeira linha esta dentro ou fora da window
+        inside_window = False
+        for p in curve_coords:
+            x2, y2 = p
+            # clipa a linha (x1, y1), (x2, y2)
+            line_coords = self.clippingCohenSutherland(x1, y1, x2, y2)
+            # se estiver dentro da window, adiciona a lista de pontos da sub curva atual
+            if line_coords != (0, 0, 0, 0):
+                x1, y1, x2, y2 = line_coords
+                sub_curve.append((x1, y1))
+                # o clipping retornou uma reta que tem as mesmas coordenadas de fim e inicio pq ela está na borda; nesse caso
+                # salvar a sub curva atual e iniciar outra
+                if (x1, y1) == (x2, y2):
+                    sub_curves.append(sub_curve)
+                    sub_curve = []
+                    # restaura o valor do ponto (x2, y2) original para n ligar o fim dessa sub curva ao inicio da prox
+                    x2, y2 = p
+                    inside_window = False
+                else:
+                    inside_window = True
+            # se n estiver, adiciona o ponto x1, y1 atual caso a sub curva atual tenha algum ponto, e logo apos a
+            # adiciona s lista de sub curvas ja gerada; caso contrário n faz nada
+            else:
+                inside_window = False
+                if sub_curve and -1 <= x1 <= 1 and -1 <= y1 <= 1:
+                    sub_curve.append((x1, y1))
+                    sub_curves.append(sub_curve)
+                    sub_curve = []
+            x1, y1 = x2, y2
+        if inside_window:
+            sub_curve.append((x1, y1))
+            sub_curves.append(sub_curve)
+            sub_curve = []
+        return sub_curves
+
+
+
+                # diminui a window
     def zoomIn(self):
         self.world.getWindow().zoomIn()
         self.update()

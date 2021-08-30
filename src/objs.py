@@ -1,4 +1,6 @@
 from enum import Enum
+
+import numpy
 from PyQt5.QtGui import QColor
 
 
@@ -9,6 +11,7 @@ class TwoDObjType(Enum):
     POINT = 0
     LINE = 1
     POLY = 2
+    CURVE = 3
 
 
 # Esquema padrão de todos os objs 2D
@@ -121,6 +124,58 @@ class Wireframe(TwoDObj):
                 self.coords.append(x_y)
             except Exception:
                 raise Exception('As coordenadas devem ser pares de números.')
+
+    def getCenter(self):
+        x = 0
+        y = 0
+        for x_y in self.coords:
+            x += x_y[0]
+            y += x_y[1]
+        return (x / len(self.coords)), (y / len(self.coords))
+
+
+class BezierCurve(TwoDObj):
+    def __init__(self, name, coords=[(0,0), (10,10), (20,10), (30,0)], color=(0, 0, 255)):
+        # n de coords é sempre : n * 3 + 1; onde n é o numero de curvas
+        super().__init__(name, 3, color)
+        if len(coords) % 3 != 1:
+            raise Exception('O numero de pontos sempre deve ser "n * 3" + 1, onde n é o número de linhas.')
+        # checa se as coords são realmente válidas
+        points = []
+        for x_y in coords:
+            if not isinstance(x_y, tuple) or len(x_y) != 2:
+                raise Exception('A lista de coordenadas deve conter apenas tuplas de dois valores.')
+            try:
+                x_y = (float(x_y[0]), float(x_y[1]))
+                points.append(x_y)
+            except Exception:
+                raise Exception('As coordenadas devem ser pares de números.')
+        # adiciona o ponto p1
+        p1 = points.pop(0)
+        self.coords.append(p1)
+        # percorre as n curvas passadas
+        for i in range(len(points) // 3):
+            p2 = points.pop(0)
+            p3 = points.pop(0)
+            p4 = points.pop(0)
+            Gb = numpy.array([[p1[0], p1[1]],
+                              [p2[0], p2[1]],
+                              [p3[0], p3[1]],
+                              [p4[0], p4[1]]])
+            Mb = numpy.array([[-1,  3, -3, 1],
+                              [3 , -6,  3, 0],
+                              [-3,  3,  0, 0],
+                              [1,   0,  0, 0]])
+            # gera 1/k pontos entre p1 e p4
+            for t in numpy.arange(0.01, 1, 0.01):
+                T = numpy.array([t**3, t**2, t, 1])
+                # p(t) = T * Mb * Gb
+                x_y_result = numpy.matmul(T, Mb)
+                x_y_result = numpy.matmul(x_y_result, Gb)
+                p = (x_y_result[0], x_y_result[1])
+                self.coords.append(p)
+            self.coords.append(p4)
+            p1 = p4
 
     def getCenter(self):
         x = 0

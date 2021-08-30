@@ -2,7 +2,7 @@ from PyQt5.QtGui import QPen, QPainter, QPalette, QColor, QPolygon, QBrush
 from PyQt5.QtWidgets import QMessageBox, QWidget
 from PyQt5.QtCore import Qt, QPoint
 
-from objs import Line, Point, Wireframe, BezierCurve, TwoDObj, TwoDObjType
+from src.objs import Line, Point, Wireframe, BezierCurve, TwoDObj, TwoDObjType
 
 
 # Classe que implementa uma viewport para a aplicação

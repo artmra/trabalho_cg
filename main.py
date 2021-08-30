@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication
-from ui import Ui
+from src.ui import Ui
 
 
 def main():

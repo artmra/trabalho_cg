@@ -2,10 +2,10 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QComboBox, QGroupBox, QMainWindow, QLabel, \
     QMessageBox, QAction, QFileDialog, QRadioButton
 
-from createMenus import CreatePointMenu, CreateLineMenu, CreateWireframeMenu, CreateTransformMenu
-from objs import DescritorOBJ
-from world import World
-from viewport import Viewport
+from src.createMenus import CreatePointMenu, CreateLineMenu, CreateWireframeMenu, CreateTransformMenu
+from src.objs import DescritorOBJ
+from src.world import World
+from src.viewport import Viewport
 
 
 class Ui(QMainWindow):
@@ -13,7 +13,7 @@ class Ui(QMainWindow):
         super().__init__()
         self.setFixedSize(1110, 810)
         self.setWindowTitle('T1 - Arthur M R Alves & Bryan M Lima')
-        self.setWindowIcon(QIcon('uiIcon.png'))
+        self.setWindowIcon(QIcon('src/images/uiIcon.png'))
         self.objListView = QComboBox()
         self.menubar = self.menuBar()
         self.filemenu = self.menubar.addMenu('File')
@@ -96,44 +96,44 @@ class Ui(QMainWindow):
         layout = QGridLayout()
         layout.addWidget(QLabel('Movimentação:'), 0, 0, 1, 3)
         upButton = QPushButton()
-        upButton.setIcon(QIcon(QPixmap('up.svg')))
+        upButton.setIcon(QIcon(QPixmap('src/images/up.svg')))
         upButton.setFlat(True)
         upButton.clicked.connect(self.clickMoveUp)
         layout.addWidget(upButton, 1, 1, 1, 2)
         leftButton = QPushButton()
-        leftButton.setIcon(QIcon(QPixmap('left.svg')))
+        leftButton.setIcon(QIcon(QPixmap('src/images/left.svg')))
         leftButton.setFlat(True)
         leftButton.clicked.connect(self.clickMoveLeft)
         layout.addWidget(leftButton, 2, 0, 1, 2)
         rightButton = QPushButton()
-        rightButton.setIcon(QIcon(QPixmap('right.svg')))
+        rightButton.setIcon(QIcon(QPixmap('src/images/right.svg')))
         rightButton.setFlat(True)
         rightButton.clicked.connect(self.clickMoveRight)
         layout.addWidget(rightButton, 2, 2, 1, 2)
         downButton = QPushButton()
-        downButton.setIcon(QIcon(QPixmap('down.svg')))
+        downButton.setIcon(QIcon(QPixmap('src/images/down.svg')))
         downButton.setFlat(True)
         downButton.clicked.connect(self.clickMoveDown)
         layout.addWidget(downButton, 3, 1, 1, 2)
         layout.addWidget(QLabel('Zoom:'), 4, 0, 1, 3)
         zoomInButton = QPushButton()
-        zoomInButton.setIcon(QIcon(QPixmap('zoomin.svg')))
+        zoomInButton.setIcon(QIcon(QPixmap('src/images/zoomin.svg')))
         zoomInButton.setFlat(True)
         zoomInButton.clicked.connect(self.clickZoomIn)
         layout.addWidget(zoomInButton, 5, 0, 1, 2)
         zoomOutButton = QPushButton()
-        zoomOutButton.setIcon(QIcon(QPixmap('zoomout.svg')))
+        zoomOutButton.setIcon(QIcon(QPixmap('src/images/zoomout.svg')))
         zoomOutButton.setFlat(True)
         zoomOutButton.clicked.connect(self.clickZoomOut)
         layout.addWidget(zoomOutButton, 5, 2, 1, 2)
         layout.addWidget(QLabel('Rotação: '), 6, 0, 1, 3)
         rotateRightButton = QPushButton()
-        rotateRightButton.setIcon(QIcon(QPixmap('rotate-right.svg')))
+        rotateRightButton.setIcon(QIcon(QPixmap('src/images/rotate-right.svg')))
         rotateRightButton.setFlat(True)
         rotateRightButton.clicked.connect(self.clickRotateRight)
         layout.addWidget(rotateRightButton, 7, 2, 1, 2)
         rotateLefttButton = QPushButton()
-        rotateLefttButton.setIcon(QIcon(QPixmap('rotate-left.svg')))
+        rotateLefttButton.setIcon(QIcon(QPixmap('src/images/rotate-left.svg')))
         rotateLefttButton.setFlat(True)
         rotateLefttButton.clicked.connect(self.clickRotateLeft)
         layout.addWidget(rotateLefttButton, 7, 0, 1, 2)
@@ -167,11 +167,11 @@ class Ui(QMainWindow):
         zoomMenu.setFixedSize(250, 200)
         layout = QGridLayout()
         zoomInButton = QPushButton()
-        zoomInButton.setIcon(QIcon(QPixmap('zoomin.svg')))
+        zoomInButton.setIcon(QIcon(QPixmap('src/images/zoomin.svg')))
         zoomInButton.clicked.connect(self.clickZoomIn)
         layout.addWidget(zoomInButton, 1, 0)
         zoomOutButton = QPushButton()
-        zoomOutButton.setIcon(QIcon(QPixmap('zoomout.svg')))
+        zoomOutButton.setIcon(QIcon(QPixmap('src/images/zoomout.svg')))
         zoomOutButton.clicked.connect(self.clickZoomOut)
         layout.addWidget(zoomOutButton, 1, 1)
         zoomMenu.setLayout(layout)
@@ -185,28 +185,28 @@ class Ui(QMainWindow):
         layout.addWidget(self.objListView, 0, 0)
         # botao adicionar ponto
         addPointButton = QPushButton('Ponto')
-        addPointButton.setIcon(QIcon(QPixmap('draw.svg')))
+        addPointButton.setIcon(QIcon(QPixmap('src/images/draw.svg')))
         # associa o metodo ao clique do botao
         addPointButton.clicked.connect(self.clickCreatePoint)
         layout.addWidget(addPointButton, 0, 1)
         # botao adicionar reta
         addLineButton = QPushButton('Linha')
-        addLineButton.setIcon(QIcon(QPixmap('draw.svg')))
+        addLineButton.setIcon(QIcon(QPixmap('src/images/draw.svg')))
         addLineButton.clicked.connect(self.clickCreateLine)
         layout.addWidget(addLineButton, 1, 1)
         # botao adicionar poligono
         addPolyButton = QPushButton('Poligono')
-        addPolyButton.setIcon(QIcon(QPixmap('draw.svg')))
+        addPolyButton.setIcon(QIcon(QPixmap('src/images/draw.svg')))
         addPolyButton.clicked.connect(self.clickCreatePolygon)
         layout.addWidget(addPolyButton, 2, 1)
         # botao pra deletar obj
         delObjButton = QPushButton('')
-        delObjButton.setIcon(QIcon(QPixmap('delete.svg')))
+        delObjButton.setIcon(QIcon(QPixmap('src/images/delete.svg')))
         delObjButton.clicked.connect(self.clickDelOjb)
         layout.addWidget(delObjButton, 1, 0)
         # botao para transformação de obj
         addTransButton = QPushButton('Transformação')
-        addTransButton.setIcon(QIcon(QPixmap('draw.svg')))
+        addTransButton.setIcon(QIcon(QPixmap('src/images/draw.svg')))
         addTransButton.clicked.connect(self.clickTransform)
         layout.addWidget(addTransButton, 2, 0)
 

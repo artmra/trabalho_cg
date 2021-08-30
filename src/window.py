@@ -1,8 +1,5 @@
 import numpy
 
-from objs import Line
-
-
 class Window:
     # construtor
     def __init__(self, world, xyw_min=None, xyw_max=None):

@@ -1,10 +1,10 @@
 # Classe que implementa o que corresponderia ao mundo da nossa aplicação, onde serão armazenados diversos obj 2D
 import numpy
 
-from objs import TwoDObj, Line, Wireframe, Point
+from src.objs import TwoDObj, Line, Wireframe, Point
 # from createMenus import CreateTransformMenu
-from viewport import Viewport
-from window import Window
+from src.viewport import Viewport
+from src.window import Window
 
 
 class World:

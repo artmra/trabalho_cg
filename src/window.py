@@ -54,43 +54,31 @@ class Window:
 
     # translada a window para cima, do ponto de vista do usuario
     def moveUp(self):
-        # se grau de inclinação da window for maior que 180, inverter sinal do param
-        invert = -1 if self.degrees > 180 else 1
-        # se grau estiver na faixa [60, 120] ou [210, 330] o eixo movimentado deve ser trocado
-        if (60 < self.degrees < 180) or (210 < self.degrees < 330):
-            self._translate(dx=invert * self.fatorMovimento)
-        else:
-            self._translate(dy=invert * self.fatorMovimento)
+        rad_angle = numpy.radians(self.degrees)
+        sin = numpy.sin(rad_angle)
+        cos = numpy.cos(rad_angle)
+        self._translate(dx=self.fatorMovimento * sin, dy=self.fatorMovimento * cos)
 
     # translada a window para baixo, do ponto de vista do usuario
     def moveDown(self):
-        # se grau de inclinação da window for maior que 180, inverter sinal do param
-        invert = -1 if self.degrees > 180 else 1
-        # se grau estiver na faixa [60, 120] ou [210, 330] o eixo movimentado deve ser trocado
-        if (60 < self.degrees < 180) or (210 < self.degrees < 330):
-            self._translate(dx=invert * (-1) * self.fatorMovimento)
-        else:
-            self._translate(dy=invert * (-1) * self.fatorMovimento)
+        rad_angle = numpy.radians(self.degrees)
+        sin = numpy.sin(rad_angle)
+        cos = numpy.cos(rad_angle)
+        self._translate(dx=(-1) * self.fatorMovimento * sin, dy=(-1) * self.fatorMovimento * cos)
 
     # translada a window para direita, do ponto de vista do usuario
     def moveRight(self):
-        # se grau de inclinação da window for maior que 180, inverter sinal do param
-        invert = -1 if self.degrees > 180 else 1
-        # se grau estiver na faixa [60, 120] ou [210, 330] o eixo movimentado deve ser trocado
-        if (60 < self.degrees < 180) or (210 < self.degrees < 330):
-            self._translate(dy=invert * self.fatorMovimento)
-        else:
-            self._translate(dx=invert * self.fatorMovimento)
+        rad_angle = numpy.radians(180 - self.degrees)
+        sin = numpy.sin(rad_angle)
+        cos = numpy.cos(rad_angle)
+        self._translate(dx=(-1) * self.fatorMovimento * cos, dy=(-1) * self.fatorMovimento * sin)
 
     # translada a window para esquerda, do ponto de vista do usuario
     def moveLeft(self):
-        # se grau de inclinação da window for maior que 180, inverter sinal do param
-        invert = -1 if self.degrees > 180 else 1
-        # se grau estiver na faixa [60, 120] ou [210, 330] o eixo movimentado deve ser trocado
-        if (60 < self.degrees < 180) or (210 < self.degrees < 330):
-            self._translate(dy=invert * (-1) * self.fatorMovimento)
-        else:
-            self._translate(dx=invert * (-1) * self.fatorMovimento)
+        rad_angle = numpy.radians(180 - self.degrees)
+        sin = numpy.sin(rad_angle)
+        cos = numpy.cos(rad_angle)
+        self._translate(dx=self.fatorMovimento * cos, dy=self.fatorMovimento * sin)
 
     # realiza a translaçao da window
     def _translate(self, dx=0, dy=0):

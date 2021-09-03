@@ -2,7 +2,7 @@ import numpy
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QWidget, QGridLayout, QLabel, QLineEdit, QPushButton, QMessageBox, QComboBox, QGroupBox, \
     QTabWidget, QPlainTextEdit, QFormLayout, QStackedLayout, QVBoxLayout
-from src.objs import Point, Line, Wireframe, BezierCurve
+from src.objs import Point, Line, Wireframe, BezierCurve, Bspline
 from src.viewport import Viewport
 
 
@@ -153,9 +153,9 @@ class CreateBSplineMenu(CreateMenu):
             coords = tuple(eval(self.coords.text()))
             try:
                 rgb = tuple(eval(self.rgb.text()))
-                obj = Wireframe(self.name.text(), coords, rgb)
+                obj = Bspline(self.name.text(), coords, rgb)
             except:
-                obj = Wireframe(self.name.text(), coords)
+                obj = Bspline(self.name.text(), coords)
             self.verify_duplicate_obj(obj)
         except Exception as e:
             msg = QMessageBox()

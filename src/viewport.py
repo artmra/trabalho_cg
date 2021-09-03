@@ -2,7 +2,7 @@ from PyQt5.QtGui import QPen, QPainter, QPalette, QColor, QPolygon, QBrush
 from PyQt5.QtWidgets import QMessageBox, QWidget
 from PyQt5.QtCore import Qt, QPoint
 
-from src.objs import Line, Point, Wireframe, BezierCurve, TwoDObj, TwoDObjType
+from src.objs import Line, Point, Wireframe, BezierCurve, Bspline,TwoDObj, TwoDObjType
 
 
 # Classe que implementa uma viewport para a aplicação
@@ -28,7 +28,9 @@ class Viewport(QWidget):
         self.addObj(Point('test_point_1', (-50, -50)))
         self.addObj(Point('test_point_2', (-35, 10)))
         self.addObj(Point('test_point_3', (79, -58)))
-        self.addObj(BezierCurve('test_bezier_curve', [(0, 0), (0, 100), (100, 100), (100, 0)]))
+        self.addObj(BezierCurve('test_bezier', [(0, 0), (0, 100), (100, 100), (100, 0)]))
+        self.addObj(Bspline('test_bspliney_1', [(-4, -4), (-2, -2), (0, -1), (-2, 0), (0, 1), (-2, 2), (-4, 4), (2, 4), (4, 0), (2, -4), (-4, -4), (-2, -2), (0, -1)]))
+        self.addObj(Bspline('test_bspliney_2', [(10, 30), (60, 30), (110, 130), (160, 30), (210, 30), (260, 30)]))
 
     # retorna os valores xy_vpmin e xy_vpmax
     def getViewportCoords(self) -> (float, float, float, float):

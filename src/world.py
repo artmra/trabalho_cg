@@ -16,6 +16,9 @@ class World:
     def getWindow(self) -> Window:
         return self.window
 
+    def setWindow(self, window) -> Window:
+        self.window = window
+
     def getObjs(self) -> list:
         # retorna todos os objs
         return self.objs

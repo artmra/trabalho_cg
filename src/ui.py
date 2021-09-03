@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QComboBox, QGroupBox, QMainWindow, QLabel, \
-    QMessageBox, QAction, QFileDialog, QRadioButton
+    QMessageBox, QAction, QFileDialog, QRadioButton, QLineEdit
 
 from src.createMenus import CreatePointMenu, CreateLineMenu, CreateWireframeMenu, CreateTransformMenu
 from src.objs import DescritorOBJ
@@ -55,7 +55,7 @@ class Ui(QMainWindow):
         filename, _ = QFileDialog.getOpenFileName(self, "Import File", "", "Obj Files (*.obj)")
         if filename:
             descritor = DescritorOBJ()
-            error = descritor.importObj(filename)
+            error = descritor.importObj(filename, self.world, self.viewport)
             if error:
                 msg = QMessageBox()
                 msg.setWindowTitle('Erro ao importar o arquivo!')
@@ -127,15 +127,18 @@ class Ui(QMainWindow):
         zoomOutButton.clicked.connect(self.clickZoomOut)
         layout.addWidget(zoomOutButton, 5, 2, 1, 2)
         layout.addWidget(QLabel('Rotação: '), 6, 0, 1, 3)
+        rotacao = QLineEdit()
+        rotacao.setText("10")
+        layout.addWidget(rotacao, 6, 2, 1, 2)
         rotateRightButton = QPushButton()
         rotateRightButton.setIcon(QIcon(QPixmap('src/images/rotate-right.svg')))
         rotateRightButton.setFlat(True)
-        rotateRightButton.clicked.connect(self.clickRotateRight)
+        rotateRightButton.clicked.connect(lambda: self.clickRotateRight(angle=int(rotacao.text())))
         layout.addWidget(rotateRightButton, 7, 2, 1, 2)
         rotateLefttButton = QPushButton()
         rotateLefttButton.setIcon(QIcon(QPixmap('src/images/rotate-left.svg')))
         rotateLefttButton.setFlat(True)
-        rotateLefttButton.clicked.connect(self.clickRotateLeft)
+        rotateLefttButton.clicked.connect(lambda: self.clickRotateLeft(angle=int(rotacao.text())))
         layout.addWidget(rotateLefttButton, 7, 0, 1, 2)
         layout.addWidget(QLabel('Clipping: '), 8, 0, 1, 3)
         layout.addWidget(QLabel('CohenSutherland'), 9, 0, 1, 3)
@@ -260,8 +263,8 @@ class Ui(QMainWindow):
     def clickMoveDown(self):
         self.viewport.moveDown()
 
-    def clickRotateRight(self):
-        self.viewport.rotateRight()
+    def clickRotateRight(self, angle):
+        self.viewport.rotateRight(angle)
 
-    def clickRotateLeft(self):
-        self.viewport.rotateLeft()
+    def clickRotateLeft(self, angle):
+        self.viewport.rotateLeft(angle)

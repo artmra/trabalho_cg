@@ -1,4 +1,5 @@
 import numpy
+from math import cos, sin, radians, tan
 
 class Window:
     # construtor
@@ -37,6 +38,12 @@ class Window:
         self.degrees = 0
         self.scn()
 
+    def set_xyw_min(self, xmin, ymin):
+        self.xyw_min = (xmin, ymin)
+
+    def set_xyw_max(self, xmax, ymax):
+        self.xyw_max = (xmax, ymax)
+
     # retorna as coordenadas (x,y) do centro da window
     def calcCenter(self) -> (float, float):
         return (self.xyw_min[0] + self.xyw_max[0]) / 2, (self.xyw_min[1] + self.xyw_max[1]) / 2
@@ -64,6 +71,9 @@ class Window:
 
     # translada a window para baixo, do ponto de vista do usuario
     def moveDown(self):
+        angle = self.degrees
+        # self._rotate(-angle)
+
         # se grau de inclinação da window for maior que 180, inverter sinal do param
         invert = -1 if self.degrees > 180 else 1
         # se grau estiver na faixa [60, 120] ou [210, 330] o eixo movimentado deve ser trocado
@@ -71,16 +81,12 @@ class Window:
             self._translate(dx=invert * (-1) * self.fatorMovimento)
         else:
             self._translate(dy=invert * (-1) * self.fatorMovimento)
+        # self._rotate(angle)
 
     # translada a window para direita, do ponto de vista do usuario
     def moveRight(self):
-        # se grau de inclinação da window for maior que 180, inverter sinal do param
-        invert = -1 if self.degrees > 180 else 1
-        # se grau estiver na faixa [60, 120] ou [210, 330] o eixo movimentado deve ser trocado
-        if (60 < self.degrees < 180) or (210 < self.degrees < 330):
-            self._translate(dy=invert * self.fatorMovimento)
-        else:
-            self._translate(dx=invert * self.fatorMovimento)
+
+
 
     # translada a window para esquerda, do ponto de vista do usuario
     def moveLeft(self):
@@ -88,9 +94,9 @@ class Window:
         invert = -1 if self.degrees > 180 else 1
         # se grau estiver na faixa [60, 120] ou [210, 330] o eixo movimentado deve ser trocado
         if (60 < self.degrees < 180) or (210 < self.degrees < 330):
-            self._translate(dy=invert * (-1) * self.fatorMovimento)
+            self._translate(dy=invert * self.fatorMovimento)
         else:
-            self._translate(dx=invert * (-1) * self.fatorMovimento)
+            self._translate(dx=invert * self.fatorMovimento)
 
     # realiza a translaçao da window
     def _translate(self, dx=0, dy=0):
@@ -157,13 +163,13 @@ class Window:
         self.scn()
 
     # Rotaciona a window no sentido horario
-    def rotateRight(self):
+    def rotateRight(self, angle):
         # 360 - 10 = 350
-        self._rotate(350)
+        self._rotate(360 - angle)
 
     # Rotaciona a window no sentido anti-horario
-    def rotateLeft(self):
-        self._rotate(10)
+    def rotateLeft(self, angle):
+        self._rotate(angle)
 
     # Rotaciona a window em relaçao ao seu proprio centro
     def _rotate(self, angle=0):

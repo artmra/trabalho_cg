@@ -282,13 +282,13 @@ class Viewport(QWidget):
         self.update()
 
     # roda a window para a direita(sentido horario)
-    def rotateRight(self):
-        self.world.getWindow().rotateRight()
+    def rotateRight(self, angle):
+        self.world.getWindow().rotateRight(angle)
         self.update()
 
     # roda a window para a esquerda(sentido anti-horario)
-    def rotateLeft(self):
-        self.world.getWindow().rotateLeft()
+    def rotateLeft(self, angle):
+        self.world.getWindow().rotateLeft(angle)
         self.update()
 
     # adiciona um objento no mundo
@@ -429,9 +429,10 @@ class Viewport(QWidget):
                 p = dy
                 q = (ymax - y1)
 
-            r = q/p
             if p == 0 and q < 0:
                 return 0, 0, 0, 0
+
+            r = q / p
 
             if p < 0:
                 if r > t1:

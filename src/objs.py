@@ -5,6 +5,7 @@ from PyQt5.QtGui import QColor
 
 
 # Enum para tipos de objs 2D
+from src.window import Window
 
 
 class TwoDObjType(Enum):
@@ -193,7 +194,7 @@ class DescritorOBJ:
         self.mtls = dict()
         self.list_objs = list()
 
-    def importObj(self, filename):
+    def importObj(self, filename, world, viewport):
         try:
             with open(filename) as file:
                 for line in file:
@@ -204,6 +205,7 @@ class DescritorOBJ:
                             coord_list.append(float(coord))
                         self.coords[self.count] = coord_list
                         self.count += 1
+                        print(self.count)
                     elif line.startswith("mtllib"):
                         mtl_file = ''.join(line.split('mtllib ')).replace('\n', "")
                         mtl_file = filename.rsplit('/', 1)[0] + '/' + mtl_file
@@ -235,11 +237,19 @@ class DescritorOBJ:
                                     self.list_objs.append(Wireframe(obj_name, x_y, color))
                                 except Exception as e:
                                     return e
+                        elif next_line.startswith("f"):
+                            try:
+                                self.list_objs.append(Wireframe(obj_name, x_y, color))
+                            except Exception as e:
+                                return e
                         elif next_line.startswith("w"):
-                            window_coord = ''.join(next_line.split('w ', 1))
-                            window_center = x_y[0]
                             win_max_x, win_max_y = x_y[1]
-                            print(win_max_x)
+
+                            xyw_max = (win_max_x/2, win_max_y/2)
+                            xyw_min = (-(win_max_x / 2), -(win_max_y / 2))
+
+                            new_window = Window(self, xyw_min, xyw_max)
+                            world.setWindow(new_window)
 
         except Exception as e:
             return e

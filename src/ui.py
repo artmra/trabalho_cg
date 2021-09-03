@@ -2,7 +2,8 @@ from PyQt5.QtGui import QIcon, QPixmap
 from PyQt5.QtWidgets import QPushButton, QGridLayout, QVBoxLayout, QComboBox, QGroupBox, QMainWindow, QLabel, \
     QMessageBox, QAction, QFileDialog, QRadioButton, QLineEdit
 
-from src.createMenus import CreatePointMenu, CreateLineMenu, CreateWireframeMenu, CreateTransformMenu
+from src.createMenus import CreatePointMenu, CreateLineMenu, CreateWireframeMenu, CreateTransformMenu, CreateBezierMenu, \
+    CreateBSplineMenu
 from src.objs import DescritorOBJ
 from src.world import World
 from src.viewport import Viewport
@@ -202,6 +203,16 @@ class Ui(QMainWindow):
         addPolyButton.setIcon(QIcon(QPixmap('src/images/draw.svg')))
         addPolyButton.clicked.connect(self.clickCreatePolygon)
         layout.addWidget(addPolyButton, 2, 1)
+        # botao adicionar curva bezier
+        addPolyButton = QPushButton('Bezier')
+        addPolyButton.setIcon(QIcon(QPixmap('src/images/draw.svg')))
+        addPolyButton.clicked.connect(self.clickCreateBezierCurve)
+        layout.addWidget(addPolyButton, 3, 1)
+        # botao adicionar b-splines
+        addPolyButton = QPushButton('B-Spline')
+        addPolyButton.setIcon(QIcon(QPixmap('src/images/draw.svg')))
+        addPolyButton.clicked.connect(self.clickCreateBSpline)
+        layout.addWidget(addPolyButton, 4, 1)
         # botao pra deletar obj
         delObjButton = QPushButton('')
         delObjButton.setIcon(QIcon(QPixmap('src/images/delete.svg')))
@@ -227,6 +238,14 @@ class Ui(QMainWindow):
     def clickCreatePolygon(self):
         self.wireframeMenu = CreateWireframeMenu(self.viewport, self.objListView)
         self.wireframeMenu.show()
+
+    def clickCreateBezierCurve(self):
+        self.bezierMenu = CreateBezierMenu(self.viewport, self.objListView)
+        self.bezierMenu.show()
+
+    def clickCreateBSpline(self):
+        self.bSplineMenu = CreateBSplineMenu(self.viewport, self.objListView)
+        self.bSplineMenu.show()
 
     def clickTransform(self):
         if self.objListView.currentIndex() == -1:

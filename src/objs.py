@@ -12,7 +12,8 @@ class TwoDObjType(Enum):
     POINT = 0
     LINE = 1
     POLY = 2
-    CURVE = 3
+    BEZIER = 3
+    BSPLINE = 4
 
 
 # Esquema padrão de todos os objs 2D
@@ -115,7 +116,7 @@ class Line(TwoDObj):
 
 # Classe que representa um polígono
 class Wireframe(TwoDObj):
-    def __init__(self, name, coords=[(0, 0), (1, 1), (0, 2)], color=(204, 0, 204)):
+    def __init__(self, name, coords=[(0, 0), (1, 1), (0, 2)], color=(0, 0, 255)):
         super().__init__(name, 2, color)
         for x_y in coords:
             if not isinstance(x_y, tuple) or len(x_y) != 2:
@@ -136,7 +137,7 @@ class Wireframe(TwoDObj):
 
 
 class BezierCurve(TwoDObj):
-    def __init__(self, name, coords=[(0,0), (10,10), (20,10), (30,0)], color=(0, 0, 255)):
+    def __init__(self, name, coords=[(0,0), (10,10), (20,10), (30,0)], color=(204, 0, 204)):
         # n de coords é sempre : n * 3 + 1; onde n é o numero de curvas
         super().__init__(name, 3, color)
         if len(coords) % 3 != 1:
@@ -177,6 +178,72 @@ class BezierCurve(TwoDObj):
                 self.coords.append(p)
             self.coords.append(p4)
             p1 = p4
+
+    def getCenter(self):
+        x = 0
+        y = 0
+        for x_y in self.coords:
+            x += x_y[0]
+            y += x_y[1]
+        return (x / len(self.coords)), (y / len(self.coords))
+
+
+class Bspline(TwoDObj):
+    def __init__(self, name, coords=[(0, 0), (10, 10), (20, 10), (30, 0)], color=(255, 165, 0)):
+        # n de coords é sempre : n * 3 + 1; onde n é o numero de curvas
+        super().__init__(name, 4, color)
+        if len(coords) < 4:
+            raise Exception('O numero de pontos sempre deve ser no mínimo 4.')
+        # checa se as coords são realmente válidas
+        points = []
+        for x_y in coords:
+            if not isinstance(x_y, tuple) or len(x_y) != 2:
+                raise Exception('A lista de coordenadas deve conter apenas tuplas de dois valores.')
+            try:
+                x_y = (float(x_y[0]), float(x_y[1]))
+                points.append(x_y)
+            except Exception:
+                raise Exception('As coordenadas devem ser pares de números.')
+        # percorre as n curvas passadas
+        # self.coords.append(points[0])
+        delta = 0.01
+        E = numpy.array([
+            [0, 0, 0, 1],
+            [delta ** 3, delta ** 2, delta, 0],
+            [6 * delta ** 3, 2 * delta ** 2, 0, 0],
+            [6 * delta ** 3, 0, 0, 0]
+        ])
+        Mbs = numpy.array([[-1 / 6, 1 / 2, -1 / 2, 1 / 6],
+                           [1 / 2, -1, 1 / 2, 0],
+                           [-1 / 2, 0, 1 / 2, 0],
+                           [1 / 6, 2 / 3, 1 / 6, 0]])
+        for i in range(3, len(points)):
+            p1 = points[i-3]
+            p2 = points[i-2]
+            p3 = points[i-1]
+            p4 = points[i]
+            Gbs = numpy.array([[p1[0], p1[1]],
+                              [p2[0], p2[1]],
+                              [p3[0], p3[1]],
+                              [p4[0], p4[1]]])
+            mbs_gbs = numpy.matmul(Mbs, Gbs)
+            e_mbs_gbs = numpy.matmul(E, mbs_gbs)
+            x, y = e_mbs_gbs[0]
+            # valores de dx
+            dx, dy = e_mbs_gbs[1]
+            dx2, dy2 = e_mbs_gbs[2]
+            dx3, dy3 = e_mbs_gbs[3]
+            self.coords.append((x, y))
+            # gera os pts de maneira iterativa
+            for i in range(int(1/delta)):
+                x += dx
+                y += dy
+                self.coords.append((x, y))
+                dx += dx2
+                dy += dy2
+                dx2 += dx3
+                dy2 += dy3
+
 
     def getCenter(self):
         x = 0
